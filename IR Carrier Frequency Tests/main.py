@@ -1,9 +1,32 @@
-# import uasyncio as asyncio
-# import TX
+import uasyncio as asyncio
 
-# asyncio.run(TX.main(Jamming=False, Freq=TX.TEST38, Delay=0.5))
+# Role = "Jammer" #Jammer Sender Reciever
+# Role = "Sender"
+Role = "Reciever"
 
-import RX
+if Role == "Jammer":
+    import TX
+    Freq=       TX.TEST38
+    Tx_Delay=   0.3
+    Addr=       0xAF
+elif Role == "Sender":
+    import TX
+    Freq=       TX.TEST56
+    Tx_Delay=   3
+    Addr=       0x01
+else:
+    import RX
 
-while True:
-    pass
+if Role in {"Jammer", "Sender"}:
+    print(f"Start TX: {Role} FREQ: {Freq} Tx Delay: {Tx_Delay} Addr: 0x{Addr:02X}")
+    asyncio.run(TX.repeat_tx(Freq=Freq, Tx_Delay=Tx_Delay, Addr=Addr))
+else:
+    print("Start Rx waiting loop. Addr: ",RX.address)
+
+# Asynchronous main loop to keep the script running
+async def main():
+  while True:
+    await asyncio.sleep_ms(100) # Sleep for 100 ms
+
+if __name__ == "__main__":
+    asyncio.run(main()) # Start the asynchronous event loop
