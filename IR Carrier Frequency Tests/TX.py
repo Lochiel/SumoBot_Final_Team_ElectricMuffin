@@ -4,13 +4,13 @@ from ir_tx.nec import NEC
 
 indicator_led = Pin("LED", Pin.OUT)
 
-TEST36 = 36_000
-TEST38 = 38_000 # Default
-TEST40 = 40_000
-TEST56 = 56_000
+FREQ_36 = 36_000
+FREQ_38 = 38_000 # Default
+FREQ_40 = 40_000
+FREQ_56 = 56_000
 
 # Define an asynchronous function to handle IR transmission
-async def repeat_tx(Freq=TEST38, Tx_Delay=3, Addr=0x01):
+async def repeat_tx(Freq=FREQ_38, Tx_Delay=3, Addr=0x01):
   ir_transmitter = NEC(Pin(17, Pin.OUT, value=0), freq=Freq) # Initialize IR transmitter on Pin 17
   commands = [0xa1, 0xa2, 0xa0, 0xb1, 0xb2, 0xb0] # List of commands to send
   while True:

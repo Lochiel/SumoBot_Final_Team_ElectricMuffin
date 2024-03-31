@@ -6,12 +6,12 @@ Role = "Reciever"
 
 if Role == "Jammer":
     import TX
-    Freq=       TX.TEST38
+    Freq=       TX.FREQ_38
     Tx_Delay=   0.3
     Addr=       0xAF
 elif Role == "Sender":
     import TX
-    Freq=       TX.TEST56
+    Freq=       TX.FREQ_56
     Tx_Delay=   3
     Addr=       0x01
 else:
