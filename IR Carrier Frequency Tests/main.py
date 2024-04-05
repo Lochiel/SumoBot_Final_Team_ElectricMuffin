@@ -1,8 +1,8 @@
 import uasyncio as asyncio
 
 # Role = "Jammer" #Jammer Sender Reciever
-# Role = "Sender"
-Role = "Reciever"
+Role = "Sender"
+# Role = "Reciever"
 
 if Role == "Jammer":
     import TX
@@ -11,9 +11,9 @@ if Role == "Jammer":
     Addr=       0xAF
 elif Role == "Sender":
     import TX
-    Freq=       TX.FREQ_56
+    Freq=       TX.FREQ_38
     Tx_Delay=   3
-    Addr=       0x01
+    Addr=       0xAA
 else:
     import RX
 
