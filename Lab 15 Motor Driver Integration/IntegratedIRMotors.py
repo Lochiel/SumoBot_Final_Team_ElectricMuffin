@@ -12,6 +12,7 @@ def ir_callback(data, addr, _):
 
     # Each if-statement specifies a state that the motor will be at, based on which hex value is being transmitted
 
+
     # Turns A motor off
     if(data == 0xa0): 
         Athrottle.duty_u16(PWM_MIN)
