@@ -53,5 +53,7 @@ command_codes = {
     "NP_1": Commands(0x8, "NeoPixel Mode 1"),
     "NP_2": Commands(0x9, "NeoPixel Mode 2"),
     "NP_3": Commands(0xA, "NeoPixel Mode 3"),
-    "SEN_BACK": Commands(0xB, "Back Sensor Toggle")
+    "SEN_BACK": Commands(0xB, "Back Sensor Toggle"),
+
+    "STOP": Commands(0xF, "Stop Motors")
 }

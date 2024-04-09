@@ -34,6 +34,10 @@ def MotorCCW(speed:int): #Placeholder, actual function should be in Motors.py
     print("MotorCCW called with value: ", speed)
     pass
 
+def MotorSTOP():
+    print("MotorSTOP called")
+    pass
+
 def NeoPixelMode(mode:int): #Placeholder, actual function should be in SumoNeoPixels.py
     print("NeoPixelMode called with value: ", mode)
     pass
@@ -58,6 +62,8 @@ command_codes["CW_FAST"].setCallback(MotorCW, 50)
 
 command_codes["CCW_SLOW"].setCallback(MotorCCW, 25)
 command_codes["CCW_FAST"].setCallback(MotorCCW, 50)
+
+command_codes["STOP"].setCallback(MotorSTOP, None)
 
 command_codes["NP_1"].setCallback(NeoPixelMode, 1)
 command_codes["NP_2"].setCallback(NeoPixelMode, 2)
@@ -88,19 +94,20 @@ IR_Reciever = IR_RX(constants.PIN_RX, constants.ADDRESS, callback_RX)
 #     Init Motors(MotorA pin1, MotorA pin2, MotorB pin1, MotorB pin2, MotorA_SpinDirection, MotorB_SpinDirection)
 #     Init NeoPixels(Pin1, Pin2)
 
-DEBUG = True
+TESTING = True
 
-def _testCallBack():
+async def _testCallBack():
     for _ in command_codes:
         print("Testing Code: ", command_codes[_])
         callback_RX(command_codes[_].code)
+        await asyncio.sleep(2)
 
 async def main():
-    while True:
-        await asyncio.sleep_ms(50)
-        pass
+    if TESTING:
+        await _testCallBack()
+    else:
+        while True:
+            await asyncio.sleep_ms(50)
+            pass
 
-if DEBUG:
-    _testCallBack()
-else:
-    _ = main()
+_ = main()
