@@ -14,25 +14,32 @@
 
 import constants
 from constants import command_codes
+import uasyncio as asyncio
 from RX import IR_RX
 
 #TODO Replace placeholders with functions in respective modules
 def MotorFWD(speed:int): #Placeholder, actual function should be in Motors.py
+    print("MotorFWD called with value: ",speed)
     pass
 
 def MotorREV(): #Placeholder, actual function should be in Motors.py
+    print("MotorREV called")
     pass
 
 def MotorCW(speed:int): #Placeholder, actual function should be in Motors.py
+    print("MotorCW called with value: ", speed)
     pass
 
 def MotorCCW(speed:int): #Placeholder, actual function should be in Motors.py
+    print("MotorCCW called with value: ", speed)
     pass
 
 def NeoPixelMode(mode:int): #Placeholder, actual function should be in SumoNeoPixels.py
+    print("NeoPixelMode called with value: ", mode)
     pass
 
 def BackSensor_Toggle(): #Placeholder, actual function should be in DistanceSenor.py
+    print("DistanceSensor_Toggle called")
     pass
 
 #TODO Replace callbacks with functions in modules
@@ -67,14 +74,33 @@ def callback_RX(data: int):
         if command_codes[_] == data:
             FuncToCall = command_codes[_].callback
             ArgToPass = command_codes[_].args
-            FuncToCall(ArgToPass)
+            if ArgToPass is None:
+                FuncToCall()
+            else:
+                FuncToCall(ArgToPass)
             return
     print("Error: "+ hex(data) + "recieved. Unable to match")
 
-#TODO setup Initalizations
 IR_Reciever = IR_RX(constants.PIN_RX, constants.ADDRESS, callback_RX)
 
+#TODO setup Initalizations
 #     Init BackSensor(Pin, Distance, CheckDelay, MotorSpin_callbackFunction)
-
 #     Init Motors(MotorA pin1, MotorA pin2, MotorB pin1, MotorB pin2, MotorA_SpinDirection, MotorB_SpinDirection)
 #     Init NeoPixels(Pin1, Pin2)
+
+DEBUG = True
+
+def _testCallBack():
+    for _ in command_codes:
+        print("Testing Code: ", command_codes[_])
+        callback_RX(command_codes[_].code)
+
+async def main():
+    while True:
+        await asyncio.sleep_ms(50)
+        pass
+
+if DEBUG:
+    _testCallBack()
+else:
+    _ = main()

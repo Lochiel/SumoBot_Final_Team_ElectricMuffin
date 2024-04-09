@@ -7,10 +7,10 @@ import constants
 
 class IR_RX:
 
-  def __init__(self, pin:int, address:int, callback:Callable) -> None:
+  def __init__(self, pin:int, address:int, callback_function) -> None:
     self.address = address
-    self.callback = callback
-    
+    self.callback = callback_function
+
     # Setup the IR receiver
     self.ir_pin = Pin(pin, Pin.IN, Pin.PULL_UP) # Adjust the pin number based on your wiring
     self.ir_receiver = NEC_8(self.ir_pin, callback=self.ir_callback)

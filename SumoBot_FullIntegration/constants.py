@@ -13,9 +13,11 @@ PIN_MOTOR_A_THROTTLE = 13 #Labelled AIN2 on PCB
 PIN_MOTOR_B_GEAR = 14 #Labelled BIN1 on PCB
 PIN_MOTOR_B_THROTTLE = 15 #Labelled BIN2 on PCB
 
+PIN_NEOPIXEL1 = 6
+PIN_NEOPIXEL2 = 7
 
-#TODO Identify Pins for NeoPixels
-#TODO Identify Pins for Distance Sensor
+PIN_SENSOR_TRIGGER = 21
+PIN_SENSOR_RETURN = 20
 
 ADDRESS = 0x5
 
@@ -40,7 +42,7 @@ class Commands():
         self.args=value
 
 command_codes = {
-    "FWD_SLO": Commands(0x0, "Forward, Slow"),
+    "FWD_SLOW": Commands(0x0, "Forward, Slow"),
     "FWD_FAST": Commands(0x1, "Forward, Fast"),
     "FWD_TURBO": Commands(0x2, "Forward, Turbo"),
     "REV": Commands(0x3, "Reverse"),
