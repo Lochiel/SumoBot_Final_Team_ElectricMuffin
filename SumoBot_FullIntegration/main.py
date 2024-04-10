@@ -16,29 +16,66 @@ import constants
 from constants import command_codes
 import uasyncio as asyncio
 from RX import IR_RX
+from machine import Pin
+from Motor import Motor
+
+# Constants for PWM
+PWM_MAX = 65535
+PWM_MIN = 0
+pwm_custom = int(PWM_MAX / 2)
+
+led1 = Pin(constants.PIN_LED1, Pin.OUT)
+led2 = Pin(constants.PIN_LED2, Pin.OUT)
+led3 = Pin(constants.PIN_LED3, Pin.OUT)
+led4 = Pin(constants.PIN_LED4, Pin.OUT)
+
+# Setup Motor Instances
+motor_a = Motor(constants.PIN_MOTOR_A_THROTTLE, constants.PIN_MOTOR_A_GEAR)
+motor_b = Motor(constants.PIN_MOTOR_B_THROTTLE, constants.PIN_MOTOR_B_GEAR)
 
 #TODO Replace placeholders with functions in respective modules
 def MotorFWD(speed:int): #Placeholder, actual function should be in Motors.py
     print("MotorFWD called with value: ",speed)
+    motor_a.fwd(speed)
+    motor_b.fwd(speed)
     pass
 
-def MotorREV(): #Placeholder, actual function should be in Motors.py
-    print("MotorREV called")
+def MotorREV(speed:int): #Placeholder, actual function should be in Motors.py
+    print("MotorREV called", speed)
+    motor_a.rev(speed)
+    motor_b.rev(speed)
     pass
 
 def MotorCW(speed:int): #Placeholder, actual function should be in Motors.py
     print("MotorCW called with value: ", speed)
+    # motor_a.gear(0)
+    # motor_a.MotorFWD(5)
+    # motor_b.gear(0)
+    # motor_b.MotorFWD(5)
     pass
 
 def MotorCCW(speed:int): #Placeholder, actual function should be in Motors.py
     print("MotorCCW called with value: ", speed)
+    # motor_a.gear(1)
+    # motor_a.rev(5)
+    # motor_b.gear(1)
+    # motor_b.rev(5)
     pass
 
 def MotorSTOP():
     print("MotorSTOP called")
+    motor_a.stop()
+    motor_b.stop()
     pass
 
 def NeoPixelMode(mode:int): #Placeholder, actual function should be in SumoNeoPixels.py
+    if mode == 1:
+        led2.toggle()
+    elif mode == 2:
+        led3.toggle()
+    elif mode == 3:
+        led4.toggle()
+
     print("NeoPixelMode called with value: ", mode)
     pass
 
@@ -94,7 +131,7 @@ IR_Reciever = IR_RX(constants.PIN_RX, constants.ADDRESS, callback_RX)
 #     Init Motors(MotorA pin1, MotorA pin2, MotorB pin1, MotorB pin2, MotorA_SpinDirection, MotorB_SpinDirection)
 #     Init NeoPixels(Pin1, Pin2)
 
-TESTING = True
+TESTING = False
 
 async def _testCallBack():
     for _ in command_codes:
@@ -104,8 +141,10 @@ async def _testCallBack():
 
 async def main():
     if TESTING:
+        "Starting Testing"
         await _testCallBack()
     else:
+        "Starting..."
         while True:
             await asyncio.sleep_ms(50)
             pass

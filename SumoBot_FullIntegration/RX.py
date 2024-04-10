@@ -2,7 +2,7 @@ from machine import Pin
 from ir_rx.nec import NEC_8 # Use the NEC 8-bit class
 from ir_rx.print_error import print_error # for debugging
 import uasyncio as asyncio
-from collections.abc import Callable
+# from collections.abc import Callable
 import constants
 
 class IR_RX:

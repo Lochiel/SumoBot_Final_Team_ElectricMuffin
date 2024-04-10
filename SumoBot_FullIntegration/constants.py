@@ -1,5 +1,3 @@
-from collections.abc import Callable
-
 PIN_LED1 = "LED"
 PIN_LED2 = 3
 PIN_LED3 = 4
@@ -24,7 +22,7 @@ ADDRESS = 0x5
 class Commands():
     code: int
     description: str
-    callback: Callable
+    callback = None
     args: None|int
 
     def __init__(self, code: int, description: str) -> None:
