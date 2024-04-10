@@ -9,6 +9,23 @@
 
 #TODO Write Back Sensor Handling
 
+# Constants for PWM
+PWM_MAX = 65535
+PWM_MIN = 0
+pwm_custom = int(PWM_MAX / 2)
+
+# Motor Class Definition
+class Motor:
+    def __init__(self, drive_pin, gear_pin, frequency=2000):
+        self.drive_pin = PWM(Pin(drive_pin), freq=frequency)
+        self.gear_pin = Pin(gear_pin, Pin.OUT)
+        self.drive_pin.duty_u16(PWM_MIN)  # Ensure motor is off initially
+
+    def control_motor(self, action, pwm_value=PWM_MIN):
+        self.gear_pin.value(action)  # action: 0 for forward, 1 for reverse
+        sleep(0.1)
+        self.drive_pin.duty_u16(pwm_value)
+
 
 ## Interrupt based main.py
 
@@ -101,6 +118,30 @@ async def _testCallBack():
         print("Testing Code: ", command_codes[_])
         callback_RX(command_codes[_].code)
         await asyncio.sleep(2)
+
+# Setup Motor Instances
+motor_a = Motor(drive_pin=15, gear_pin=14)
+motor_b = Motor(drive_pin=20, gear_pin=19)
+
+# IR Receiver Callback Function
+async def motor_callback(data, addr, _):
+    print(f"Received NEC command! Data: 0x{data:02X}, Addr: 0x{addr:02X}")
+    
+    # Motor A Control
+    if data == 0xa0:
+        motor_a.control_motor(action=0)  # StopMotor A
+    elif data == 0xa1:
+        motor_a.control_motor(action=0, pwm_value=pwm_custom)  # MotorA forward
+    elif data == 0xa2:
+        motor_a.control_motor(action=1, pwm_value=pwm_custom)  # MotorA reverse
+    
+    # Motor B Control
+    if data == 0xb0:
+        motor_b.control_motor(action=0)  # StopMotor B
+    elif data == 0xb1:
+        motor_b.control_motor(action=0, pwm_value=pwm_custom)  # MotorB forward
+    elif data == 0xb2:
+        motor_b.control_motor(action=1, pwm_value=pwm_custom)  # MotorB reverse
 
 async def main():
     if TESTING:
