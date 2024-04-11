@@ -20,14 +20,25 @@ _T_ONE = 1687
 class SLAM(IR):
     valid = (0xf, 0xf, 0)  # Max addr, data, toggle
 
+    #TODO change asize argument passed to super().__init__() to new size
+    # asize = on/off times (μs)
+    # 2 on/off times per bit. 
+    # NEC asize is 68 for 32 bits of data + start and end blocks
+    # 8*4 + 2 = 34 bits
+
+    # SLAM has 4 bit addr and data sizes. Additional 4 bits each of error detection, and Start and End bloc
+    # 4*4 + 2 = 18 bits
+    # SLAM asize = 36
+
     def __init__(self, pin, freq=38000, verbose=False):  # 38kHz is the standard frequency
-        super().__init__(pin, freq, 68, 33, verbose)  # Measured duty ratio 33%
+        super().__init__(pin, freq, 36, 33, verbose)  # Measured duty ratio 33% 
 
     def _bit(self, b):
         self.append(_TBURST, _T_ONE if b else _TBURST) # If bit =1, long space, else short space
 
     def tx(self, addr, data, _):  # Ignore toggle
         self.append(9000, 4500) #Start Block TODO
+        addr |= ((addr ^ 0xf) << 4)
         for _ in range(0xf):
             self._bit(addr & 1)
             addr >>= 1
@@ -36,8 +47,3 @@ class SLAM(IR):
             self._bit(data & 1)
             data >>= 1
         self.append(_TBURST)
-
-    # def repeat(self):
-    #     self.aptr = 0
-    #     self.append(9000, 2250, _TBURST)
-    #     self.trigger()  # Initiate physical transmission.
