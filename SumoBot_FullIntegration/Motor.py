@@ -12,19 +12,18 @@ class Motor:
     #Pin.value(x) evaluates x for truthiness. True sets Pin High. False sets Pin Low
     # Change this value based on the side the motor is on
     FWD = True
-    REV = FWD # TODO: when this value is false, does it prevent the motors from spinning in reverse?
+    REV = not FWD
 
     PWM_MAX = 65535
     PWM_MIN = 0
     pwm_custom = int(PWM_MAX / 2)
 
-    _DelayToStop = 500; #When commanded to stop, how many miliseconds will we wait for the motor to spin down? 
+    _DelayToStop = 0; #When commanded to stop, how many miliseconds will we wait for the motor to spin down? 
 
     def __init__(self, DrivePin: int | str, GearPin: int| str) -> None:
         self.__DrivePin = PWM(Pin(DrivePin), freq=2000)
         self.__GearPin = Pin(GearPin, Pin.OUT, value=self.FWD)
         self.__gear = self.FWD
-        pass
 
     def fwd(self, speed):
          GearRtrn = self.gear(self.FWD)
@@ -52,3 +51,13 @@ class Motor:
     def stop(self):
         self.__DrivePin.duty_u16(self.PWM_MIN)
         sleep_ms(self._DelayToStop)
+    
+    def __str__(self) -> str:
+        if (self.__gear == self.FWD):
+            gear = "Forward"
+        elif (self.__gear == self.REV):
+            gear = "Reverse"
+        else:
+            gear = "ERROR"
+        throttle = int(self.__DrivePin.duty_u16() / self.PWM_MAX)
+        return str(gear) + " at " + str(throttle) + "%"

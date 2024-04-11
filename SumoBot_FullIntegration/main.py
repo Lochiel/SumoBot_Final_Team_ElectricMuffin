@@ -11,8 +11,6 @@
 
 ## Interrupt based main.py
 
-print("A")
-
 import constants
 from constants import command_codes
 import uasyncio as asyncio
@@ -32,15 +30,16 @@ motor_b = Motor(constants.PIN_MOTOR_B_THROTTLE, constants.PIN_MOTOR_B_GEAR)
 #TODO Replace placeholders with functions in respective modules
 def MotorFWD(speed:int): #Placeholder, actual function should be in Motors.py
     print("MotorFWD called with value: ",speed)
-    motor_a.fwd(speed)
-    motor_b.fwd(speed)
-    pass
+    MotorA_status = motor_a.fwd(speed)
+    MotorB_status = motor_b.fwd(speed)
+    print(f"MotorA: {MotorA_status} MotorB: {MotorB_status}")
+
 
 def MotorREV(speed:int): #Placeholder, actual function should be in Motors.py
     print("MotorREV called", speed)
-    motor_a.rev(speed)
-    motor_b.rev(speed)
-    pass
+    MotorA_status = motor_a.rev(speed)
+    MotorB_status = motor_b.rev(speed)
+    print(f"MotorA: {MotorA_status} MotorB: {MotorB_status}")
 
 def MotorCW(speed:int): #Placeholder, actual function should be in Motors.py
     print("MotorCW called with value: ", speed)
@@ -60,9 +59,9 @@ def MotorCCW(speed:int): #Placeholder, actual function should be in Motors.py
 
 def MotorSTOP():
     print("MotorSTOP called")
-    motor_a.stop()
-    motor_b.stop()
-    pass
+    MotorA_status = motor_a.stop()
+    MotorB_status = motor_b.stop()
+    print(f"MotorA: {MotorA_status} MotorB: {MotorB_status}")
 
 def NeoPixelMode(mode:int): #Placeholder, actual function should be in SumoNeoPixels.py
     if mode == 1:
@@ -127,6 +126,7 @@ IR_Reciever = IR_RX(constants.PIN_RX, constants.ADDRESS, callback_RX)
 #     Init Motors(MotorA pin1, MotorA pin2, MotorB pin1, MotorB pin2, MotorA_SpinDirection, MotorB_SpinDirection)
 #     Init NeoPixels(Pin1, Pin2)
 
+MANUAL = True
 TESTING = False
 
 async def _testCallBack():
@@ -135,19 +135,18 @@ async def _testCallBack():
         callback_RX(command_codes[_].code)
         await asyncio.sleep(2)
 
-# Setup Motor Instances
-motor_a = Motor(DrivePin=15, GearPin=14)
-motor_b = Motor(DrivePin=20, GearPin=19)
-
 async def main():
-    if TESTING:
-        "Starting Testing"
+    print("Loading Main...")
+    if MANUAL:
+        print("Starting Manual Control")
+        return
+    elif TESTING:
+        print("Starting Testing")
         await _testCallBack()
     else:
-        "Starting..."
+        print("Starting...")
         while True:
             await asyncio.sleep_ms(50)
             pass
 
-print("Hello")
 asyncio.run(main())
