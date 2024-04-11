@@ -9,25 +9,9 @@
 
 #TODO Write Back Sensor Handling
 
-# Constants for PWM
-PWM_MAX = 65535
-PWM_MIN = 0
-pwm_custom = int(PWM_MAX / 2)
-
-# Motor Class Definition
-class Motor:
-    def __init__(self, drive_pin, gear_pin, frequency=2000):
-        self.drive_pin = PWM(Pin(drive_pin), freq=frequency)
-        self.gear_pin = Pin(gear_pin, Pin.OUT)
-        self.drive_pin.duty_u16(PWM_MIN)  # Ensure motor is off initially
-
-    def control_motor(self, action, pwm_value=PWM_MIN):
-        self.gear_pin.value(action)  # action: 0 for forward, 1 for reverse
-        sleep(0.1)
-        self.drive_pin.duty_u16(pwm_value)
-
-
 ## Interrupt based main.py
+
+print("A")
 
 import constants
 from constants import command_codes
@@ -35,11 +19,6 @@ import uasyncio as asyncio
 from RX import IR_RX
 from machine import Pin
 from Motor import Motor
-
-# Constants for PWM
-PWM_MAX = 65535
-PWM_MIN = 0
-pwm_custom = int(PWM_MAX / 2)
 
 led1 = Pin(constants.PIN_LED1, Pin.OUT)
 led2 = Pin(constants.PIN_LED2, Pin.OUT)
@@ -109,7 +88,7 @@ command_codes["FWD_SLOW"].setCallback(MotorFWD, 25)
 command_codes["FWD_FAST"].setCallback(MotorFWD, 50)
 command_codes["FWD_TURBO"].setCallback(MotorFWD, 100)
 
-command_codes["REV"].setCallback(MotorREV, None)
+command_codes["REV"].setCallback(MotorREV, 50)
 
 command_codes["CW_SLOW"].setCallback(MotorCW, 25)
 command_codes["CW_FAST"].setCallback(MotorCW, 50)
@@ -157,28 +136,8 @@ async def _testCallBack():
         await asyncio.sleep(2)
 
 # Setup Motor Instances
-motor_a = Motor(drive_pin=15, gear_pin=14)
-motor_b = Motor(drive_pin=20, gear_pin=19)
-
-# IR Receiver Callback Function
-async def motor_callback(data, addr, _):
-    print(f"Received NEC command! Data: 0x{data:02X}, Addr: 0x{addr:02X}")
-    
-    # Motor A Control
-    if data == 0xa0:
-        motor_a.control_motor(action=0)  # StopMotor A
-    elif data == 0xa1:
-        motor_a.control_motor(action=0, pwm_value=pwm_custom)  # MotorA forward
-    elif data == 0xa2:
-        motor_a.control_motor(action=1, pwm_value=pwm_custom)  # MotorA reverse
-    
-    # Motor B Control
-    if data == 0xb0:
-        motor_b.control_motor(action=0)  # StopMotor B
-    elif data == 0xb1:
-        motor_b.control_motor(action=0, pwm_value=pwm_custom)  # MotorB forward
-    elif data == 0xb2:
-        motor_b.control_motor(action=1, pwm_value=pwm_custom)  # MotorB reverse
+motor_a = Motor(DrivePin=15, GearPin=14)
+motor_b = Motor(DrivePin=20, GearPin=19)
 
 async def main():
     if TESTING:
@@ -190,4 +149,5 @@ async def main():
             await asyncio.sleep_ms(50)
             pass
 
-_ = main()
+print("Hello")
+asyncio.run(main())
