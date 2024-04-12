@@ -5,7 +5,7 @@
 # Modified NEC code
 # Based on code by Peter Hinch
 
-#TODO Reduce data and address size from 8 to 4 bits
+#DONE Reduce data and address size from 8 to 4 bits
 #TODO Reduce burst length
 #TODO Reduce long/short space ratio
 #TODO Make burst time based on tx frequency, so that higher frequencies reduce tx time
@@ -20,7 +20,7 @@ _T_ONE = 1687
 class SLAM(IR):
     valid = (0xf, 0xf, 0)  # Max addr, data, toggle
 
-    #TODO change asize argument passed to super().__init__() to new size
+    #DONE change asize argument passed to super().__init__() to new size
     # asize = on/off times (μs)
     # 2 on/off times per bit. 
     # NEC asize is 68 for 32 bits of data + start and end blocks
@@ -39,11 +39,11 @@ class SLAM(IR):
     def tx(self, addr, data, _):  # Ignore toggle
         self.append(9000, 4500) #Start Block TODO
         addr |= ((addr ^ 0xf) << 4)
-        for _ in range(0xf):
+        for _ in range(8):
             self._bit(addr & 1)
             addr >>= 1
         data |= ((data ^ 0xf) << 4)
-        for _ in range(0xf):
+        for _ in range(8):
             self._bit(data & 1)
             data >>= 1
         self.append(_TBURST)

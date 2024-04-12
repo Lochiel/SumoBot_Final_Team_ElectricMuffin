@@ -4,13 +4,12 @@
 # Modified NEC code
 # Based on code by Peter Hinch
 
+#TODO Remove non-SLAM handling; Samsung, NEC-8 etc.
 #TODO Reduce data and address size from 8 to 4 bits
 #TODO Reduce burst length
 #TODO Make burst time based on tx frequency, so that higher frequencies reduce tx time
 #TODO Reduce Start block size 
 #TODO Evaluate possibility of a second, delayed transmission. This is to give a 2nd chance at capturing a corrupted transmission
-#TODO Find New name
-
 
 from utime import ticks_us, ticks_diff
 from ir_rx import IR_RX
