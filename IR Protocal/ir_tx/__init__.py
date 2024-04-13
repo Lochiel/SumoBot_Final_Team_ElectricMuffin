@@ -120,7 +120,6 @@ class IR:
             self._cb(self._tim)  # Initiate physical transmission.
 
     def append(self, *times):  # Append one or more time peiods to ._arr
-        print("Appending: ", times)
         for t in times:
             self._arr[self.aptr] = t
             self.aptr += 1

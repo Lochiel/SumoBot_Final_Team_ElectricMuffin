@@ -36,8 +36,11 @@ class SLAM(IR):
     def _bit(self, b):
         self.append(_TBURST, _T_ONE if b else _TBURST) # If bit =1, long space, else short space
 
+    #NOTE In nec.py, StartBlock times are 9ms on then 4.5ms off
+    # However, the default wait times in ir_rx/nec.py are 4ms and 3ms
+
     def tx(self, addr, data, _):  # Ignore toggle
-        self.append(9000, 4500) #Start Block TODO
+        self.append(4500, 2500) #Start Block TODO
         addr |= ((addr ^ 0xf) << 4)
         for _ in range(8):
             self._bit(addr & 1)
