@@ -1,4 +1,4 @@
-from SumoBot_FullIntegration import constants
+import constants
 from machine import Pin
 import uasyncio as asyncio
 import tx
