@@ -1,6 +1,6 @@
 import uasyncio as asyncio
 
-TESTING = True
+TESTING = False
 
 if TESTING:
     import tx_test

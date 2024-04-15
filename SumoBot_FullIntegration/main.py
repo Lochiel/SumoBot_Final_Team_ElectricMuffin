@@ -102,7 +102,7 @@ command_codes["STOP"].setCallback(MotorSTOP, None)
 
 command_codes["NP_1"].setCallback(NeoPixelMode, 1)
 command_codes["NP_2"].setCallback(NeoPixelMode, 2)
-command_codes["NP_3"].setCallback(NeoPixelMode, 2)
+command_codes["NP_3"].setCallback(NeoPixelMode, 3)
 
 command_codes["SEN_BACK"].setCallback(BackSensor_Toggle, None)
 
