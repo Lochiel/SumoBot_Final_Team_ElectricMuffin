@@ -24,5 +24,5 @@ ir_receiver.error_function(print_error) # Optional: Use the print_error function
 if __name__ == "__main__":
    print("Starting Rx wait loop")
    while True:
-      asyncio.sleep_ms(100) # Sleep for 100 ms
+      _ = asyncio.sleep_ms(100) # Sleep for 100 ms
       pass # Execution is interrupt-driven, so just keep the script alive

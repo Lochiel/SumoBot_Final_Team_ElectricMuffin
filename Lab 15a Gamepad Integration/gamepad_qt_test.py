@@ -184,12 +184,6 @@ def main():
            print("Joystick moved - X:", current_x, ", Y:", current_y)
            last_x, last_y = current_x, current_y
 
-           # Turn off all LEDs
-           set_led(Pin(LED_1_PIN, Pin.OUT), False)
-           set_led(Pin(LED_2_PIN, Pin.OUT), False)
-           set_led(Pin(LED_3_PIN, Pin.OUT), False)
-           set_led(Pin(LED_4_PIN, Pin.OUT), False)
-
            # Determine which LED to turn on based on joystick direction
            if current_y < joystick_center_y - joystick_threshold:  # Joystick moved up
                set_led(Pin(LED_3_PIN, Pin.OUT), True)

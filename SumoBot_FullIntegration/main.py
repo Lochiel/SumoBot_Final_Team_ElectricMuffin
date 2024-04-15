@@ -1,12 +1,9 @@
-## Psuedo Code
+# SumoBot Control Main
+# Cam Chalmers, Anusha Venka, Melissa Clark
+# ECEN 2440 - Applications of Embedded System. Spring '24
+#
 
-## Goals
-## Have basic control code setup 
-
-## TODO seperate Main.py, Motors.py, and RX.py, etc into seperate modules
-## TODO Break out repeating code into functions
-## TODO Set up interrupts/callback sequences
-
+#TODO Write Neo-Pixel Handling
 #TODO Write Back Sensor Handling
 
 ## Interrupt based main.py
@@ -18,28 +15,36 @@ from RX import IR_RX
 from machine import Pin
 from Motor import Motor
 
-led1 = Pin(constants.PIN_LED1, Pin.OUT)
+led = Pin(constants.PIN_LED1, Pin.OUT)
 led2 = Pin(constants.PIN_LED2, Pin.OUT)
 led3 = Pin(constants.PIN_LED3, Pin.OUT)
 led4 = Pin(constants.PIN_LED4, Pin.OUT)
+
+led.value(1) #Turn on board led, it'll be turned off whene everything is loaded... ie very quickly
+led2.value(0)
+led3.value(0)
+led4.value(0)
 
 # Setup Motor Instances
 motor_a = Motor(constants.PIN_MOTOR_A_THROTTLE, constants.PIN_MOTOR_A_GEAR)
 motor_b = Motor(constants.PIN_MOTOR_B_THROTTLE, constants.PIN_MOTOR_B_GEAR)
 
+motor_a.stop()
+motor_b.stop()
+
 #TODO Replace placeholders with functions in respective modules
 def MotorFWD(speed:int): #Placeholder, actual function should be in Motors.py
-    print("MotorFWD called with value: ",speed)
-    MotorA_status = motor_a.fwd(speed)
-    MotorB_status = motor_b.fwd(speed)
-    print(f"MotorA: {MotorA_status} MotorB: {MotorB_status}")
+    # print("MotorFWD called with value: ",speed)
+    motor_a.fwd(speed)
+    motor_b.fwd(speed)
+    print(f"Motor_A: {motor_a} Motor_B: {motor_b}")
 
 
 def MotorREV(speed:int): #Placeholder, actual function should be in Motors.py
-    print("MotorREV called", speed)
-    MotorA_status = motor_a.rev(speed)
-    MotorB_status = motor_b.rev(speed)
-    print(f"MotorA: {MotorA_status} MotorB: {MotorB_status}")
+    # print("MotorREV called", speed)
+    motor_a.rev(speed)
+    motor_b.rev(speed)
+    print(f"Motor_A: {motor_a} Motor_B: {motor_b}")
 
 def MotorCW(speed:int): #Placeholder, actual function should be in Motors.py
     print("MotorCW called with value: ", speed)
@@ -47,21 +52,23 @@ def MotorCW(speed:int): #Placeholder, actual function should be in Motors.py
     # motor_a.MotorFWD(5)
     # motor_b.gear(0)
     # motor_b.MotorFWD(5)
+    print(f"Motor_A: {motor_a} Motor_B: {motor_b}")
     pass
 
 def MotorCCW(speed:int): #Placeholder, actual function should be in Motors.py
-    print("MotorCCW called with value: ", speed)
+    # print("MotorCCW called with value: ", speed)
     # motor_a.gear(1)
     # motor_a.rev(5)
     # motor_b.gear(1)
     # motor_b.rev(5)
+    print(f"Motor_A: {motor_a} Motor_B: {motor_b}")
     pass
 
 def MotorSTOP():
-    print("MotorSTOP called")
-    MotorA_status = motor_a.stop()
-    MotorB_status = motor_b.stop()
-    print(f"MotorA: {MotorA_status} MotorB: {MotorB_status}")
+    # print("MotorSTOP called")
+    motor_a.stop()
+    motor_b.stop()
+    print(f"Motor_A: {motor_a} Motor_B: {motor_b}")
 
 def NeoPixelMode(mode:int): #Placeholder, actual function should be in SumoNeoPixels.py
     if mode == 1:
@@ -78,11 +85,7 @@ def BackSensor_Toggle(): #Placeholder, actual function should be in DistanceSeno
     print("DistanceSensor_Toggle called")
     pass
 
-#TODO Replace callbacks with functions in modules
-#TODO Replace placeholder numbers with constants
-# Names like MotorFWD, MotorREV, MotorCW, MotorCCW are placeholders. 
-# They should be replaced with the names of function that is supposed to be called when the coressponding command code is recieved
-# arguments that need to be passed to that function should follow
+## Set the callback functions for each command code
 command_codes["FWD_SLOW"].setCallback(MotorFWD, 25)
 command_codes["FWD_FAST"].setCallback(MotorFWD, 50)
 command_codes["FWD_TURBO"].setCallback(MotorFWD, 100)
@@ -99,17 +102,16 @@ command_codes["STOP"].setCallback(MotorSTOP, None)
 
 command_codes["NP_1"].setCallback(NeoPixelMode, 1)
 command_codes["NP_2"].setCallback(NeoPixelMode, 2)
-command_codes["NP_3"].setCallback(NeoPixelMode, 2)
+command_codes["NP_3"].setCallback(NeoPixelMode, 3)
 
 command_codes["SEN_BACK"].setCallback(BackSensor_Toggle, None)
-
-#TODO write RX processing fuction. This will be called by the RX module when it recieves a valid data package
 
 ## This will compare the recieved data to the codes in command_codes
 ## If a match is found, it will call the stored function with the stored value
 def callback_RX(data: int):
     for _ in command_codes: 
         if command_codes[_] == data:
+            led.toggle()
             FuncToCall = command_codes[_].callback
             ArgToPass = command_codes[_].args
             if ArgToPass is None:
@@ -121,12 +123,11 @@ def callback_RX(data: int):
 
 IR_Reciever = IR_RX(constants.PIN_RX, constants.ADDRESS, callback_RX)
 
-#TODO setup Initalizations
-#     Init BackSensor(Pin, Distance, CheckDelay, MotorSpin_callbackFunction)
-#     Init Motors(MotorA pin1, MotorA pin2, MotorB pin1, MotorB pin2, MotorA_SpinDirection, MotorB_SpinDirection)
-#     Init NeoPixels(Pin1, Pin2)
+##### Testing Modes
+# Manual = allows for functions to be called from the REPL
+# Test = cycles through the command codes with a short delay
 
-MANUAL = True
+MANUAL = False
 TESTING = False
 
 async def _testCallBack():
@@ -137,13 +138,17 @@ async def _testCallBack():
 
 async def main():
     print("Loading Main...")
+    led.value(0) # Turn off led now that everything is loaded
     if MANUAL:
+        led3.value(1)   
         print("Starting Manual Control")
         return
     elif TESTING:
+        led4.value(1)
         print("Starting Testing")
         await _testCallBack()
     else:
+        led2.value(1)
         print("Starting...")
         while True:
             await asyncio.sleep_ms(50)

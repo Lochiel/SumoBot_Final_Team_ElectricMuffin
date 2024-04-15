@@ -1,7 +1,7 @@
 from machine import Pin
 import uasyncio as asyncio
 from ir_tx.nec import NEC
-from SumoBot_FullIntegration import constants
+import constants
 
 Addr = constants.ADDRESS
 
