@@ -16,6 +16,7 @@ from machine import Pin
 from Motor import Motor
 from time import sleep
 import constants
+import distance_sensor
 
 led = Pin(constants.PIN_LED1, Pin.OUT)
 led2 = Pin(constants.PIN_LED2, Pin.OUT)
@@ -83,10 +84,11 @@ def BackSensor_Toggle(): #Placeholder, actual function should be in DistanceSeno
     print("DistanceSensor_Toggle called")
     pass
 
-def TurnMotors():
-    MotorCW(5)
-    sleep(5)
-    MotorSTOP()
+async def TurnMotors(turn): # If check_distance (in distancesensor.py) returns true, turn Bot CW
+    if(turn): 
+        MotorCW(50)
+        await asyncio.sleep(3)
+        MotorSTOP()
     pass
 
 ## Set the callback functions for each command code
@@ -155,8 +157,10 @@ async def main():
         led2.value(1)
         print("Starting...")
         while True:
+            led3.toggle()
             await asyncio.sleep_ms(50)
-            TurnMotors()
+            turn = distance_sensor.check_distance()
+            await TurnMotors(turn)
             pass
-
+    MotorSTOP()
 asyncio.run(main())
