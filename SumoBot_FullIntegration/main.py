@@ -14,6 +14,8 @@ import uasyncio as asyncio
 from RX import IR_RX
 from machine import Pin
 from Motor import Motor
+from time import sleep
+import constants
 
 led = Pin(constants.PIN_LED1, Pin.OUT)
 led2 = Pin(constants.PIN_LED2, Pin.OUT)
@@ -48,19 +50,15 @@ def MotorREV(speed:int): #Placeholder, actual function should be in Motors.py
 
 def MotorCW(speed:int): #Placeholder, actual function should be in Motors.py
     print("MotorCW called with value: ", speed)
-    # motor_a.gear(0)
-    # motor_a.MotorFWD(5)
-    # motor_b.gear(0)
-    # motor_b.MotorFWD(5)
+    motor_a.fwd(speed)
+    motor_b.rev(speed)
     print(f"Motor_A: {motor_a} Motor_B: {motor_b}")
     pass
 
 def MotorCCW(speed:int): #Placeholder, actual function should be in Motors.py
-    # print("MotorCCW called with value: ", speed)
-    # motor_a.gear(1)
-    # motor_a.rev(5)
-    # motor_b.gear(1)
-    # motor_b.rev(5)
+    print("MotorCCW called with value: ", speed)
+    motor_a.rev(speed)
+    motor_b.fwd(speed)
     print(f"Motor_A: {motor_a} Motor_B: {motor_b}")
     pass
 
@@ -83,6 +81,12 @@ def NeoPixelMode(mode:int): #Placeholder, actual function should be in SumoNeoPi
 
 def BackSensor_Toggle(): #Placeholder, actual function should be in DistanceSenor.py
     print("DistanceSensor_Toggle called")
+    pass
+
+def TurnMotors():
+    MotorCW(5)
+    sleep(5)
+    MotorSTOP()
     pass
 
 ## Set the callback functions for each command code
@@ -152,6 +156,7 @@ async def main():
         print("Starting...")
         while True:
             await asyncio.sleep_ms(50)
+            TurnMotors()
             pass
 
 asyncio.run(main())
