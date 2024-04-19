@@ -162,5 +162,4 @@ async def main():
             turn = distance_sensor.check_distance()
             await TurnMotors(turn)
             pass
-    MotorSTOP()
 asyncio.run(main())
