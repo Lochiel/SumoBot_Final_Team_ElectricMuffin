@@ -16,7 +16,7 @@ from machine import Pin
 from Motor import Motor
 from time import sleep
 import constants
-import distance_sensor
+#import distance_sensor
 
 led = Pin(constants.PIN_LED1, Pin.OUT)
 led2 = Pin(constants.PIN_LED2, Pin.OUT)
@@ -29,8 +29,8 @@ led3.value(0)
 led4.value(0)
 
 # Setup Motor Instances
-motor_a = Motor(constants.PIN_MOTOR_A_THROTTLE, constants.PIN_MOTOR_A_GEAR)
-motor_b = Motor(constants.PIN_MOTOR_B_THROTTLE, constants.PIN_MOTOR_B_GEAR)
+motor_a = Motor(constants.PIN_MOTOR_A_THROTTLE, constants.PIN_MOTOR_A_GEAR, CWisFwd=False)
+motor_b = Motor(constants.PIN_MOTOR_B_THROTTLE, constants.PIN_MOTOR_B_GEAR, CWisFwd=True)
 
 motor_a.stop()
 motor_b.stop()
@@ -133,7 +133,7 @@ IR_Reciever = IR_RX(constants.PIN_RX, constants.ADDRESS, callback_RX)
 # Manual = allows for functions to be called from the REPL
 # Test = cycles through the command codes with a short delay
 
-MANUAL = False
+MANUAL = True
 TESTING = False
 
 async def _testCallBack():
@@ -159,7 +159,7 @@ async def main():
         while True:
             led3.toggle()
             await asyncio.sleep_ms(50)
-            turn = distance_sensor.check_distance()
-            await TurnMotors(turn)
+            # turn = distance_sensor.check_distance()
+            # await TurnMotors(turn)
             pass
 asyncio.run(main())

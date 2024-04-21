@@ -20,10 +20,11 @@ class Motor:
 
     _DelayToStop = 0; #When commanded to stop, how many miliseconds will we wait for the motor to spin down? 
 
-    def __init__(self, DrivePin: int | str, GearPin: int| str) -> None:
+    def __init__(self, DrivePin: int | str, GearPin: int| str, CWisFwd=True) -> None:
         self._DrivePin = PWM(Pin(DrivePin), freq=2000)
         self._GearPin = Pin(GearPin, Pin.OUT, value=self.FWD)
         self._gear = self.FWD
+        self.FWD = CWisFwd
 
     def fwd(self, speed):
          GearRtrn = self.gear(self.FWD)

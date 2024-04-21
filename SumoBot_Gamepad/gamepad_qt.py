@@ -69,7 +69,7 @@ def process_buttons(current_buttons):
 ##############
 def transmit(code):
     # time.sleep_ms(constants.TX_DELAY)  # Delay to prevent overwhelming the output
-    print(f"Transmitting {command_codes[code]}")
+    # print(f"Transmitting {command_codes[code]}")
     asyncio.run(tx.transmit(command_codes[code].code))
 
 
@@ -190,8 +190,11 @@ def main():
                 transmit("NP_2")
             elif (btn_Y):
                 transmit("NP_1")
+            
+            else:
+                transmit("STOP")
 
 
 if __name__ == "__main__":
-   GAMEPAD_READ_DELAY = 2000
+   GAMEPAD_READ_DELAY = 500
    main()
