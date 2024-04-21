@@ -10,7 +10,7 @@ print(f"IR Tx initialized. Pin: {constants.PIN_TX}, Freq: {constants.FREQ} Hz, A
 
 async def transmit(command:int, Tx_Delay=constants.TX_DELAY):
   ir_transmitter.transmit(Addr, command)
-  print(f"IR signal transmitted: Addr 0x{Addr:01x}, Command 0x{command:02x}")
+  # print(f"IR signal transmitted: Addr 0x{Addr:01x}, Command 0x{command:02x}")
   await asyncio.sleep_ms(Tx_Delay) # Wait before sending the next command    
 
 # Main function to run the transmitter
