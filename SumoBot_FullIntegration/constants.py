@@ -28,6 +28,10 @@ FREQ_56 = 56_000
 
 FREQ = FREQ_38
 
+SLOW = 25
+FAST = 50
+TURBO = 100
+
 class Commands():
 #     code: int
 #     description: str
