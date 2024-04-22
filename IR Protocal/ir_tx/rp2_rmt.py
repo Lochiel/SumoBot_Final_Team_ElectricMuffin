@@ -54,12 +54,14 @@ class RP2_RMT:
         self.apt = 0  # Array index
         self.arr = None  # Array
         self.ict = None  # Current IRQ count
+        # self.ict = 0  # Current IRQ count
         self.icm = 0  # End IRQ count
         self.reps = 0  # 0 == forever n == no. of reps
         rp2.PIO(0).irq(self._cb)
 
     # IRQ callback. Because of FIFO IRQ's keep arriving after STOP.
     def _cb(self, pio):
+        print(f"self.ict{self.ict}")
         self.pwm.duty_u16(self.duty[self.ict & 1])
         self.ict += 1
         if d := self.arr[self.apt]:  # If data available feed FIFO
