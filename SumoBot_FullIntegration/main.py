@@ -102,11 +102,11 @@ command_codes["FWD_TURBO"].setCallback(MotorFWD, constants.TURBO)
 
 command_codes["REV"].setCallback(MotorREV, constants.FAST)
 
-command_codes["CW_SLOW"].setCallback(MotorCW, constants.SLOW)
-command_codes["CW_FAST"].setCallback(MotorCW, constants.FAST)
+command_codes["CW_SLOW"].setCallback(MotorCW, constants.TURN_SLOW)
+command_codes["CW_FAST"].setCallback(MotorCW, constants.TURN_FAST)
 
-command_codes["CCW_SLOW"].setCallback(MotorCCW, constants.SLOW)
-command_codes["CCW_FAST"].setCallback(MotorCCW, constants.FAST)
+command_codes["CCW_SLOW"].setCallback(MotorCCW, constants.TURN_SLOW)
+command_codes["CCW_FAST"].setCallback(MotorCCW, constants.o)
 
 command_codes["STOP"].setCallback(MotorSTOP, None)
 

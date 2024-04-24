@@ -30,6 +30,8 @@ FREQ = FREQ_38
 
 SLOW = 25
 FAST = 50
+TURN_SLOW = 15
+TURN_FAST = 25
 TURBO = 100
 
 class Commands():

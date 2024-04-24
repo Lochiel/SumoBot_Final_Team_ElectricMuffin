@@ -9,10 +9,6 @@ class Motor:
     _GearPin: Pin
     _gear: None | bool
 
-    #Pin.value(x) evaluates x for truthiness. True sets Pin High. False sets Pin Low
-    # Change this value based on the side the motor is on
-    FWD = True
-    REV = not FWD
 
     PWM_MAX = 65535
     PWM_MIN = 0
@@ -21,13 +17,15 @@ class Motor:
     _DelayToStop = 0; #When commanded to stop, how many miliseconds will we wait for the motor to spin down? 
 
     def __init__(self, DrivePin: int | str, GearPin: int| str, CWisFwd=True) -> None:
+        self.FWD = CWisFwd
+        self.REV = not CWisFwd
         self._DrivePin = PWM(Pin(DrivePin), freq=2000)
         self._GearPin = Pin(GearPin, Pin.OUT, value=self.FWD)
         self._gear = self.FWD
-        self.FWD = CWisFwd
 
     def fwd(self, speed):
          GearRtrn = self.gear(self.FWD)
+         self.StartPulse()
          SpeedRtrn = self.speed(speed)
          return {GearRtrn, SpeedRtrn}
         
@@ -53,6 +51,12 @@ class Motor:
         self._DrivePin.duty_u16(self.PWM_MIN)
         sleep_ms(self._DelayToStop)
     
+    def StartPulse(self):
+        if self._DrivePin.duty_u16() == 0:
+            self.speed(100)
+            sleep_ms(1)
+        
+
     def status(self):
         return {self._gear,self._DrivePin.duty_u16()}
     

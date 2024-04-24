@@ -69,7 +69,8 @@ def process_buttons(current_buttons):
 ##############
 def transmit(code):
     # time.sleep_ms(constants.TX_DELAY)  # Delay to prevent overwhelming the output
-    # print(f"Transmitting {command_codes[code]}")
+    if code is not "STOP":
+        print(f"Transmitting {command_codes[code]}")
     asyncio.run(tx.transmit(command_codes[code].code))
 
 
