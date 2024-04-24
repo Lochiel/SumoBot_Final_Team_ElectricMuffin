@@ -31,11 +31,13 @@ def printSummery(tx_string):
 
 slam_test = SLAM(pin)
 slam_test.tx(0x5,0xF,None)
+print(f"Dot: {slam_test._TBURST}")
+print(f"Dash: {slam_test._T_ONE}")
 printSummery(slam_test)
 
-nec_test = NEC(pin)
-nec_test.tx(0x05,0x0F,None)
-printSummery(nec_test)
+# nec_test = NEC(pin)
+# nec_test.tx(0x05,0x0F,None)
+# printSummery(nec_test)
 
 while True:
     if Tx_test_pin():
@@ -45,7 +47,7 @@ while True:
             break
         for data in range(0,0xF):
             print(f"Tx addr: {addr} data: {data}")
-            nec_test.transmit(addr,data)
+            slam_test.transmit(addr,data)
             led.toggle()
             sleep(0.1)
             if Tx_test_pin():

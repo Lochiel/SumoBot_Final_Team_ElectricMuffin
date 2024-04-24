@@ -6,19 +6,20 @@
 # Based on code by Peter Hinch
 
 #DONE Reduce data and address size from 8 to 4 bits
-#TODO Reduce burst length
-#TODO Reduce long/short space ratio
-#TODO Make burst time based on tx frequency, so that higher frequencies reduce tx time
+#TODO Reduce burst length - Need Real world testing
+#TODO Reduce long/short space ratio - Code changes implemented, ready to deploy
+#DONE Make burst time based on tx frequency, so that higher frequencies reduce tx time
 #TODO Reduce Start block size 
 #TODO Evaluate possibility of a second, delayed transmission. This is to give a 2nd chance at capturing a corrupted transmission
 
 from ir_tx import IR, STOP
 
-_TBURST = 563
-_T_ONE = 1687
-
 class SLAM(IR):
     valid = (0xf, 0xf, 0)  # Max addr, data, toggle
+
+    _TBURST = 563
+    _T_ONE = 1687
+
 
     #DONE change asize argument passed to super().__init__() to new size
     # asize = on/off times (μs)
@@ -30,12 +31,21 @@ class SLAM(IR):
     # 4*4 + 2 = 18 bits
     # SLAM asize = 36
 
-    def __init__(self, pin, freq=38000, verbose=False):  # 38kHz is the standard frequency
+    def __init__(self, pin, freq=38_000, verbose=False):  # 38kHz is the standard frequency
+        self._setBurstLength(freq)
         super().__init__(pin, freq, 36, 33, verbose)  # Measured duty ratio 33% 
 
     def _bit(self, b):
-        self.append(_TBURST, _T_ONE if b else _TBURST) # If bit =1, long space, else short space
+        self.append(self._TBURST, self._T_ONE if b else self._TBURST) # If bit =1, long space, else short space
 
+    def _setBurstLength(self, freq):
+        """Set's the length of the bursts based on the tx frequency"""
+        cycles_per_us = freq/(1_000_000)
+        period = 1/cycles_per_us
+        burst_cycles = 15
+        self._TBURST = int(burst_cycles * period)
+        self._T_ONE = int(3 * self._TBURST)
+    
     #NOTE In nec.py, StartBlock times are 9ms on then 4.5ms off
     # However, the default wait times in ir_rx/nec.py are 4ms and 3ms
 
@@ -49,4 +59,4 @@ class SLAM(IR):
         for _ in range(8):
             self._bit(data & 1)
             data >>= 1
-        self.append(_TBURST)
+        self.append(self._TBURST)

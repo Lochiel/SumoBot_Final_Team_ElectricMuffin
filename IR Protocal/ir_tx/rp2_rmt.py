@@ -61,7 +61,6 @@ class RP2_RMT:
 
     # IRQ callback. Because of FIFO IRQ's keep arriving after STOP.
     def _cb(self, pio):
-        print(f"self.ict{self.ict}")
         self.pwm.duty_u16(self.duty[self.ict & 1])
         self.ict += 1
         if d := self.arr[self.apt]:  # If data available feed FIFO
