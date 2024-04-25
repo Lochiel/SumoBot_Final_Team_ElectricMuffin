@@ -1,11 +1,14 @@
 from slam import SLAM
+from nec import NEC_ABC as NEC
 from machine import Pin
 from array import array
 from time import sleep_us
 from utime import ticks_diff
 from print_error import print_error
 
-pin = Pin(18, Pin.IN)
+Test_SLAM = False
+
+RxPin = Pin(18, Pin.IN)
 
 #Address: 0x5, Command: 0xF
 #Edges: 36
@@ -16,28 +19,33 @@ def callback(cmd, addr, _):
 
 def runTest(data):
     for _ in data:
-        slam_test._cb_pin(0)
+        RX._cb_pin(0)
         sleep_us(_)
-    slam_test.decode(0)
+    RX.decode(0)
 
-slam_test = SLAM(pin, callback)
-slam_test.error_function(print_error)
+if Test_SLAM:
+    RX = SLAM(RxPin, callback)
+else:
+    RX = NEC(RxPin, 0,0, callback)
 
-# while True:
-#     sleep_us(500)
+RX.error_function(print_error)
 
-print("Good Data Test. Expect Address: 0x5, Cmd 0xF")
-runTest(DataStream)
+print("Starting RX test...")
+while True:
+    sleep_us(500)
 
-print("Bad Data: Missing end")
-BadDataStream=DataStream[:]
-BadDataStream.append(100)
-runTest(BadDataStream)
+# print("Good Data Test. Expect Address: 0x5, Cmd 0xF")
+# runTest(DataStream)
 
-print("Bad Data: Flipped Bit")
-BadDataStream=DataStream[:]
-BadDataStream[5] = 1687
-runTest(BadDataStream)
+# print("Bad Data: Missing end")
+# BadDataStream=DataStream[:]
+# BadDataStream.append(100)
+# runTest(BadDataStream)
+
+# print("Bad Data: Flipped Bit")
+# BadDataStream=DataStream[:]
+# BadDataStream[5] = 1687
+# runTest(BadDataStream)
 
 
 # # print(f"Array of edge times: {slam_test._times}")

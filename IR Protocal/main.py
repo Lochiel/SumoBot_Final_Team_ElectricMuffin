@@ -7,8 +7,8 @@ from ir_rx.nec import NEC_ABC as rx_NEC
 from machine import Pin
 from time import sleep_us
 
-AUTOMATIC = False
-SLAM = True
+AUTOMATIC = True
+SLAM = False
 
 pin_Tx_test = Pin(6,Pin.IN,Pin.PULL_UP)
 txPin = Pin(19, Pin.OUT)
@@ -64,16 +64,17 @@ def printSummery_RX(rx):
 #     return tx_array
 
 
-if SLAM:
-    TX = tx_SLAM(txPin)
-    RX = rx_SLAM(rxPin, callback)
-else:
-    TX = tx_NEC(txPin)
-    RX = rx_NEC(rxPin, 0,0, callback)
+
 
 if AUTOMATIC:
     import ir_tx.test
 else:
+    if SLAM:
+        TX = tx_SLAM(txPin)
+        RX = rx_SLAM(rxPin, callback)
+    else:
+        TX = tx_NEC(txPin)
+        RX = rx_NEC(rxPin, 0,0, callback)
     print("Running Test")
     print("SLAM test") if SLAM else print("NEC Test")
     TX.tx(0x5,0xF,None)

@@ -1,7 +1,9 @@
 from slam import SLAM
-from nec import NEC
 from machine import Pin
 from time import sleep
+from nec import NEC
+
+test_SLAM = False
 
 # indicator_led = Pin("LED", Pin.OUT)
 
@@ -29,15 +31,15 @@ def printSummery(tx_string):
     print(f"Number of on/offs: {len(tx_string)} Time in us: {TxTimeCalculation(tx_string)}")
     print(f"(TX: {tx_string}")
 
-slam_test = SLAM(pin)
-slam_test.tx(0x5,0xF,None)
-print(f"Dot: {slam_test._TBURST}")
-print(f"Dash: {slam_test._T_ONE}")
-printSummery(slam_test)
+if test_SLAM:
+    Tx_test = SLAM(pin)
+else:
+    Tx_test = NEC(pin)
 
-# nec_test = NEC(pin)
-# nec_test.tx(0x05,0x0F,None)
-# printSummery(nec_test)
+Tx_test.tx(0x5,0xF,None)
+print(f"Dot: {Tx_test._TBURST}")
+print(f"Dash: {Tx_test._T_ONE}")
+printSummery(Tx_test)
 
 while True:
     if Tx_test_pin():
@@ -47,7 +49,7 @@ while True:
             break
         for data in range(0,0xF):
             print(f"Tx addr: {addr} data: {data}")
-            slam_test.transmit(addr,data)
+            Tx_test.transmit(addr,data)
             led.toggle()
             sleep(0.1)
             if Tx_test_pin():
