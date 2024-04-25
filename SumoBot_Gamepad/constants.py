@@ -18,8 +18,8 @@ PIN_NEOPIXEL2 = 7
 PIN_SENSOR_TRIGGER = 21
 PIN_SENSOR_RETURN = 20
 
-ADDRESS = 0x5
-TX_DELAY = 300 # ms after start of Tx that we will wait before attempting to transmit again
+ADDRESS = 0x2
+TX_DELAY = 200 # ms after start of Tx that we will wait before attempting to transmit again
 
 FREQ_36 = 36_000
 FREQ_38 = 38_000 # Default
@@ -59,7 +59,10 @@ command_codes = {
     "NP_1": Commands(0x8, "NeoPixel Mode 1"),
     "NP_2": Commands(0x9, "NeoPixel Mode 2"),
     "NP_3": Commands(0xA, "NeoPixel Mode 3"),
+    "180": Commands(0xB, "180, in place, rotation"),
     "SEN_BACK": Commands(0xB, "Back Sensor Toggle"),
+    "CW_DODGE": Commands(0xC, "Dodge Clockwise"),
+    "CCW_DODGE": Commands(0xD, "Dodge CounterClockwise"),
 
     "STOP": Commands(0xF, "Stop Motors")
 }

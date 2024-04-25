@@ -165,6 +165,12 @@ def main():
 
             if (turbo) & (current_y ==2):
                 transmit("FWD_TURBO")
+            elif (turbo) & (current_y == -2):
+                transmit("180")
+            elif (turbo) & (current_x == 2):
+                transmit("CW_DODGE")
+            elif (turbo) & (current_x == -2):
+                transmit("CCW_DODGE")
 
             elif (current_x == 2):
                 transmit("CW_FAST")
