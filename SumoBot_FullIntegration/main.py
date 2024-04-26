@@ -14,7 +14,7 @@ from constants import command_codes
 from RX import IR_RX
 from machine import Pin
 from Motor import Motor
-from time import sleep
+from time import sleep, sleep_ms
 import time
 import constants
 #import distance_sensor
@@ -43,7 +43,6 @@ def MotorFWD(speed:int):
     motor_a.fwd(speed)
     motor_b.fwd(speed)
     print(f"Motor_A: {motor_a} Motor_B: {motor_b}")
-
 
 def MotorREV(speed:int): 
     motor_a.rev(speed)
@@ -82,12 +81,18 @@ def BackSensor_Toggle(): #Placeholder, actual function should be in DistanceSeno
     print("DistanceSensor_Toggle called")
     pass
 
-def TurnMotors(turn): # If check_distance (in distancesensor.py) returns true, turn Bot CW
-    if(turn): 
-        MotorCW(50)
-        sleep(1)
-        MotorSTOP()
+def Turn180(): # If check_distance (in distancesensor.py) returns true, turn Bot CW 
+    MotorCW(100)
+    sleep_ms(250)
+    MotorSTOP()
     pass
+
+#TODO Write proper dodge function
+def Dodge(direction):
+    if (direction == "CW"):
+        pass
+    elif (direction == "CCW"):
+        pass
 
 def AutoStopCheck():
     global last_tx_received_time
@@ -104,9 +109,11 @@ command_codes["REV"].setCallback(MotorREV, constants.FAST)
 
 command_codes["CW_SLOW"].setCallback(MotorCW, constants.TURN_SLOW)
 command_codes["CW_FAST"].setCallback(MotorCW, constants.TURN_FAST)
+command_codes["CW_DODGE"].setCallback(Dodge, "CW")
 
 command_codes["CCW_SLOW"].setCallback(MotorCCW, constants.TURN_SLOW)
-command_codes["CCW_FAST"].setCallback(MotorCCW, constants.o)
+command_codes["CCW_FAST"].setCallback(MotorCCW, constants.TURN_FAST)
+command_codes["CCW_DODGE"].setCallback(Dodge, "CCW") 
 
 command_codes["STOP"].setCallback(MotorSTOP, None)
 
@@ -115,6 +122,7 @@ command_codes["NP_2"].setCallback(NeoPixelMode, 2)
 command_codes["NP_3"].setCallback(NeoPixelMode, 3)
 
 command_codes["SEN_BACK"].setCallback(BackSensor_Toggle, None)
+command_codes["180"].setCallback(Turn180, None)
 
 ## This will compare the recieved data to the codes in command_codes
 ## If a match is found, it will call the stored function with the stored value
@@ -167,7 +175,8 @@ def main():
             time.sleep_ms(50)
             AutoStopCheck()
             # turn = distance_sensor.check_distance()
-            # await TurnMotors(turn)
+            # if turn:
+            #   await Turn180()
             pass
 
 main()

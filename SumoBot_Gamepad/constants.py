@@ -59,8 +59,8 @@ command_codes = {
     "NP_1": Commands(0x8, "NeoPixel Mode 1"),
     "NP_2": Commands(0x9, "NeoPixel Mode 2"),
     "NP_3": Commands(0xA, "NeoPixel Mode 3"),
-    "180": Commands(0xB, "180, in place, rotation"),
     "SEN_BACK": Commands(0xB, "Back Sensor Toggle"),
+    "180": Commands(0xC, "180, in place, rotation"),
     "CW_DODGE": Commands(0xC, "Dodge Clockwise"),
     "CCW_DODGE": Commands(0xD, "Dodge CounterClockwise"),
 
