@@ -61,8 +61,8 @@ command_codes = {
     "NP_3": Commands(0xA, "NeoPixel Mode 3"),
     "SEN_BACK": Commands(0xB, "Back Sensor Toggle"),
     "180": Commands(0xC, "180, in place, rotation"),
-    "CW_DODGE": Commands(0xC, "Dodge Clockwise"),
-    "CCW_DODGE": Commands(0xD, "Dodge CounterClockwise"),
+    "CW_DODGE": Commands(0xD, "Dodge Clockwise"),
+    "CCW_DODGE": Commands(0xE, "Dodge CounterClockwise"),
 
     "STOP": Commands(0xF, "Stop Motors")
 }

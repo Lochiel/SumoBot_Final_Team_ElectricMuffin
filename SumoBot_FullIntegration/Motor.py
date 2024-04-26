@@ -56,7 +56,6 @@ class Motor:
             self.speed(100)
             sleep_ms(1)
         
-
     def status(self):
         return {self._gear,self._DrivePin.duty_u16()}
     

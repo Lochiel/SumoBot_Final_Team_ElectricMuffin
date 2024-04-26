@@ -30,7 +30,7 @@ led3.value(0)
 led4.value(0)
 
 last_tx_received_time = time.ticks_ms
-AUTOSTOP_TIMEOUT = 1000 #ms from last tx recieved to initiate autostop
+AUTOSTOP_TIMEOUT = 250 #ms from last tx recieved to initiate autostop
 
 # Setup Motor Instances
 motor_a = Motor(constants.PIN_MOTOR_A_THROTTLE, constants.PIN_MOTOR_A_GEAR, CWisFwd=False)
@@ -83,16 +83,22 @@ def BackSensor_Toggle(): #Placeholder, actual function should be in DistanceSeno
 
 def Turn180(): # If check_distance (in distancesensor.py) returns true, turn Bot CW 
     MotorCW(100)
-    sleep_ms(250)
+    sleep_ms(200)
     MotorSTOP()
     pass
 
 #TODO Write proper dodge function
 def Dodge(direction):
     if (direction == "CW"):
+        motor_b.rev(100)
+        motor_a.fwd(20)
         pass
     elif (direction == "CCW"):
+        motor_a.rev(100)
+        motor_b.fwd(20)
         pass
+    sleep_ms(300)
+    MotorSTOP()
 
 def AutoStopCheck():
     global last_tx_received_time
