@@ -17,8 +17,10 @@ from ir_tx import IR, STOP
 class SLAM(IR):
     valid = (0xf, 0xf, 0)  # Max addr, data, toggle
 
-    _TBURST = 563
-    _T_ONE = 1687
+    _DOT = 563 #Default values, will be set late
+    _DASH = 1687
+
+    _DASH_Ratio = 2 #Number of times we multiply _TBURST to get the length of _T_ONE
 
 
     #DONE change asize argument passed to super().__init__() to new size
@@ -36,21 +38,24 @@ class SLAM(IR):
         super().__init__(pin, freq, 36, 33, verbose)  # Measured duty ratio 33% 
 
     def _bit(self, b):
-        self.append(self._TBURST, self._T_ONE if b else self._TBURST) # If bit =1, long space, else short space
+        self.append(self._DOT, self._DASH if b else self._DOT) # If bit =1, long space, else short space
 
     def _setBurstLength(self, freq):
         """Set's the length of the bursts based on the tx frequency"""
         cycles_per_us = freq/(1_000_000)
         period = 1/cycles_per_us
-        burst_cycles = 15
-        self._TBURST = int(burst_cycles * period)
-        self._T_ONE = int(3 * self._TBURST)
+        burst_cycles = 15 #Number of cycles in a burst
+        self._DOT = int(burst_cycles * period)
+        self._DASH = int(self._DASH_Ratio * self._DOT)
+
+        self.StartBlock_leader = self._DASH
+        self.StartBlock_follower = self._DASH
     
     #NOTE In nec.py, StartBlock times are 9ms on then 4.5ms off
     # However, the default wait times in ir_rx/nec.py are 4ms and 3ms
 
     def tx(self, addr, data, _):  # Ignore toggle
-        self.append(4500, 2500) #Start Block TODO
+        self.append(self.StartBlock_leader, self.StartBlock_follower) #Start Block TODO
         addr |= ((addr ^ 0xf) << 4)
         for _ in range(8):
             self._bit(addr & 1)
@@ -59,4 +64,4 @@ class SLAM(IR):
         for _ in range(8):
             self._bit(data & 1)
             data >>= 1
-        self.append(self._TBURST)
+        self.append(self._DOT)

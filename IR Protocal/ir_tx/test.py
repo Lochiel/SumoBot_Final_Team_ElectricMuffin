@@ -3,7 +3,7 @@ from machine import Pin
 from time import sleep
 from nec import NEC
 
-test_SLAM = False
+test_SLAM = True
 
 # indicator_led = Pin("LED", Pin.OUT)
 
@@ -33,12 +33,12 @@ def printSummery(tx_string):
 
 if test_SLAM:
     Tx_test = SLAM(pin)
+    print(f"Dot: {Tx_test._DOT}")
+    print(f"Dash: {Tx_test._DASH}")
 else:
     Tx_test = NEC(pin)
 
 Tx_test.tx(0x5,0xF,None)
-print(f"Dot: {Tx_test._TBURST}")
-print(f"Dash: {Tx_test._T_ONE}")
 printSummery(Tx_test)
 
 while True:

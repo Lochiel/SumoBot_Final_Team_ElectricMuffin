@@ -5,10 +5,10 @@ from ir_tx.nec import NEC as tx_NEC
 from ir_rx.nec import NEC_ABC as rx_NEC
 
 from machine import Pin
-from time import sleep_us
+from time import sleep_us, ticks_diff
 
-AUTOMATIC = True
-SLAM = False
+AUTOMATIC = False
+SLAM = True
 
 pin_Tx_test = Pin(6,Pin.IN,Pin.PULL_UP)
 txPin = Pin(19, Pin.OUT)
@@ -19,12 +19,19 @@ rxPin = Pin(18, Pin.IN)
 def callback(cmd, addr, _):
     print(f"Address: {hex(addr)} Cmd: {hex(cmd)} ")
 
+def calculate_pulsewidths(RxBlock):
+    timeBlock = []
+    for i in range(0,len(RxBlock)-1):
+        timeBlock.append(ticks_diff(RxBlock[i+1],RxBlock[i]))
+    return timeBlock
+
 def runTest(data):
     for _ in data:
         if _ > 0:
             RX._cb_pin(0)
             sleep_us(_)
     RX._cb_pin(0)
+    print(f"RX: {calculate_pulsewidths(RX._times)}")
     RX.decode(0)
 
 ###TX Functions
@@ -39,21 +46,22 @@ def TxTimeCalculation(input):
     return tx_time
 
 def printSummery_TX(tx):
-    print("TX Summery")
+    print("---TX Summery---")
     tx_array = tx._arr
     if SLAM:
-        print(f"Dot: {tx._TBURST}")
-        print(f"Dash: {tx._T_ONE}")
+        print(f"Dot: {tx._DOT}")
+        print(f"Dash: {tx._DASH}")
     print(f"Number of on/offs: {len(tx_array)} Time in us: {TxTimeCalculation(tx_array)}")
     print(f"(TX: {tx_array}")
 
 def printSummery_RX(rx):
-    print("RX Summer")
+    print("---RX Summery---")
     if SLAM:
-        print(f"Dot: {rx._TBURST}")
-        print(f"Dash: {rx._T_ONE}")
-        print(f"Threshold: {rx._T_ONE_Threshold}")
-        print(f"TX block Length {rx._txBlock}")
+        print(f"Dot: {rx._DOT}")
+        print(f"Dash: {rx._DASH}")
+        print(f"Threshold: {rx._DASH_Threshold}")
+        print(f"RX block Length {rx._txBlock}")
+
 
 # def trimTrailingZeros(tx_array):
 #     for i in range(len(tx_array)-1,0,-1):
@@ -84,5 +92,5 @@ else:
     # txBlock = trimTrailingZeros(txBlock)
     printSummery_RX(RX)
 
-    print("Good Data Test. Expect Address: 0x5, Cmd 0xF")
+    print("-Good Data Test. Expect Address: 0x5, Cmd 0xF")
     runTest(txBlock)

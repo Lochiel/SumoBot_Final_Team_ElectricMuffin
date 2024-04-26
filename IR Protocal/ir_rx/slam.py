@@ -18,17 +18,16 @@ from ir_rx import IR_RX
 
 class SLAM(IR_RX):
     
-    _T_ONE_Ratio = 3 #Number of times we multiply _TBURST to get the length of _T_ONE
+    _DASH_Ratio = 2 #Number of times we multiply _TBURST to get the length of _T_ONE
 
     #NOTE In nec.py, StartBlock times are 9ms on then 4.5ms off
     # However, the default wait times in ir_rx/nec.py are 4ms and 3ms
     def __init__(self, pin, callback, freq=38_000, *args):
         self._edges = 36 #Number of expected edges
         self._setBurstLength(freq)
-        self.StarBlock_leader = 2000 # Length of Start Block
-        self.StarBlock_follower = 1500
+        self._setDASH_Threshold()
+        self._setStartBlock()
         self._txBlock = self._calculate_txBlock() #Number of ms to wait for a full tx. 
-        self._setT_One_Threshold()
         super().__init__(pin, self._edges, self._txBlock, callback, *args)
         self._addr = 0
 
@@ -37,8 +36,12 @@ class SLAM(IR_RX):
         cycles_per_us = freq/(1_000_000)
         period = 1/cycles_per_us
         burst_cycles = 15
-        self._TBURST = int(burst_cycles * period)
-        self._T_ONE = int(3 * self._TBURST)
+        self._DOT = int(burst_cycles * period)
+        self._DASH = int(3 * self._DOT)
+
+    def _setStartBlock(self):
+        self.StartBlock_leader = self._DASH_Threshold # Length of Start Block
+        self.StarBlock_follower = self._DASH_Threshold
 
     def _calculate_txBlock(self):
         """Returns the expected txBlock size, based on the freq and data size"""
@@ -50,24 +53,24 @@ class SLAM(IR_RX):
         # Due to error correction, each tx block is half 1's and half 0's
         # thus, tx block length = bits/2 * (2 TBURST) + bits/2 * (1 TBURST = n * TBURST)
         bits = self._edges/2
-        zero_length = (bits * self._TBURST)
-        ones_length = (bits/2 * (self._TBURST + self._T_ONE_Ratio*self._TBURST))
+        zero_length = (bits * self._DOT)
+        ones_length = (bits/2 * (self._DOT + self._DASH_Ratio*self._DOT))
         data_length = zero_length + ones_length
         #Include header information.
         #TODO Update the header information when we have nailed that down
-        return int(data_length + self.StarBlock_leader*2 + self.StarBlock_follower*2 ) 
+        return int(data_length + self.StartBlock_leader*2 + self.StarBlock_follower*2 ) 
 
-    def _setT_One_Threshold(self):
+    def _setDASH_Threshold(self):
         # This value will be the threshold that determines a bit in the datastream is a zero or one
         # We don't want this to be explicitly TBURST or T_ONE, as physical realities of circuits and tranmissions may distort the times
-        self._T_ONE_Threshold = self._T_ONE + (self._TBURST - self._T_ONE)/2
+        self._DASH_Threshold = int(self._DOT + (self._DASH - self._DOT)/2)
 
     def decode(self, _):
         try:
             if self.edge > self._edges:
                 raise RuntimeError(self.OVERRUN)
             width = ticks_diff(self._times[1], self._times[0])
-            if width < self.StarBlock_leader:  # 2.5ms leading mark for all valid data
+            if width < self.StartBlock_leader:  # 2.5ms leading mark for all valid data
                 raise RuntimeError(self.BADSTART)
             width = ticks_diff(self._times[2], self._times[1])
             if width > self.StarBlock_follower:  # 4.5ms space for normal data
@@ -79,7 +82,7 @@ class SLAM(IR_RX):
                 val = 0
                 for edge in range(3, self._edges - 2, 2):
                     val >>= 1
-                    if ticks_diff(self._times[edge + 1], self._times[edge]) > self._T_ONE_Threshold:
+                    if ticks_diff(self._times[edge + 1], self._times[edge]) > self._DASH_Threshold:
                         val |= 0x8000  #make val the size of data transmission; each '0' is 4 bits
             else:
                 raise RuntimeError(self.BADSTART)
