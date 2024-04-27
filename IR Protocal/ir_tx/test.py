@@ -51,7 +51,7 @@ while True:
             print(f"Tx addr: {addr} data: {data}")
             Tx_test.transmit(addr,data)
             led.toggle()
-            sleep(0.1)
+            sleep(0.5)
             if Tx_test_pin():
                 print("Stopping due to input")
                 break

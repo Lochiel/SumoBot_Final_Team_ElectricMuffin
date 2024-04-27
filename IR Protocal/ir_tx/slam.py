@@ -6,10 +6,11 @@
 # Based on code by Peter Hinch
 
 #DONE Reduce data and address size from 8 to 4 bits
-#TODO Reduce burst length - Need Real world testing
-#TODO Reduce long/short space ratio - Code changes implemented, ready to deploy
+#DONE Reduce burst length - Need Real world testing
+#DONE Reduce long/short space ratio - Code changes implemented, ready to deploy
 #DONE Make burst time based on tx frequency, so that higher frequencies reduce tx time
-#TODO Reduce Start block size 
+#DONE Reduce Start block size 
+# First and second burst are both one DASH in length. A properly coded transmission will not have any other sequential DASH'es
 #TODO Evaluate possibility of a second, delayed transmission. This is to give a 2nd chance at capturing a corrupted transmission
 
 from ir_tx import IR, STOP
@@ -17,11 +18,8 @@ from ir_tx import IR, STOP
 class SLAM(IR):
     valid = (0xf, 0xf, 0)  # Max addr, data, toggle
 
-    _DOT = 563 #Default values, will be set late
-    _DASH = 1687
-
-    _DASH_Ratio = 2 #Number of times we multiply _TBURST to get the length of _T_ONE
-
+    _DASH_Ratio = 2 #Number of times we multiply _DOT to get the length of _DASH
+    _CYCLES_PER_DOT = 10 #Number of IR cycles in a DOT. Determined by the IR Reciever, check the datasheet for information
 
     #DONE change asize argument passed to super().__init__() to new size
     # asize = on/off times (μs)
@@ -35,6 +33,7 @@ class SLAM(IR):
 
     def __init__(self, pin, freq=38_000, verbose=False):  # 38kHz is the standard frequency
         self._setBurstLength(freq)
+        self._setStartBlock()
         super().__init__(pin, freq, 36, 33, verbose)  # Measured duty ratio 33% 
 
     def _bit(self, b):
@@ -44,11 +43,12 @@ class SLAM(IR):
         """Set's the length of the bursts based on the tx frequency"""
         cycles_per_us = freq/(1_000_000)
         period = 1/cycles_per_us
-        burst_cycles = 15 #Number of cycles in a burst
+        burst_cycles = self._CYCLES_PER_DOT #Number of cycles in a burst
         self._DOT = int(burst_cycles * period)
         self._DASH = int(self._DASH_Ratio * self._DOT)
 
-        self.StartBlock_leader = self._DASH
+    def _setStartBlock(self):
+        self.StartBlock_leader = self._DASH # Length of Start Block
         self.StartBlock_follower = self._DASH
     
     #NOTE In nec.py, StartBlock times are 9ms on then 4.5ms off

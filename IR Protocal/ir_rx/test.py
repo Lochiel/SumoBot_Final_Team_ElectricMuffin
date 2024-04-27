@@ -6,13 +6,9 @@ from time import sleep_us
 from utime import ticks_diff
 from print_error import print_error
 
-Test_SLAM = False
+Test_SLAM = True
 
 RxPin = Pin(18, Pin.IN)
-
-#Address: 0x5, Command: 0xF
-#Edges: 36
-DataStream = array('i', [4500, 2500, 394, 1182, 394, 394, 394, 1182, 394, 394, 394, 394, 394, 1182, 394, 394, 394, 1182, 394, 1182, 394, 1182, 394, 1182, 394, 1182, 394, 394, 394, 394, 394, 394, 394, 394, 394, 0])
 
 def callback(cmd, addr, _):
     print(f"Address: {hex(addr)} Cmd: {hex(cmd)} ")
