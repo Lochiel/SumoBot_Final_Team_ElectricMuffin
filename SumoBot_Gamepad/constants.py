@@ -19,7 +19,8 @@ PIN_SENSOR_TRIGGER = 21
 PIN_SENSOR_RETURN = 20
 
 ADDRESS = 0x2
-TX_DELAY = 200 # ms after start of Tx that we will wait before attempting to transmit again
+TX_DELAY = 0 # ms after start of Tx that we will wait before attempting to transmit again
+# Setting to zero b/c our gamepade code also incorporates a delay
 
 FREQ_36 = 36_000
 FREQ_38 = 38_000 # Default

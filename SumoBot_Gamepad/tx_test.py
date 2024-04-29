@@ -1,6 +1,6 @@
 import constants
 from machine import Pin
-from time import sleep
+from time import sleep, sleep_ms
 import tx
 
 print("Entering Test Mode")
@@ -14,7 +14,7 @@ def main():
             if "NP_" in _:
                 led.toggle()
                 tx.transmit(codes[_].code)
-                sleep(2)
+                sleep_ms(200)
 
 if __name__ == "__main__":
     main()
