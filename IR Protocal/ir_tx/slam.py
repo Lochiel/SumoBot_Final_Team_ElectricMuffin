@@ -13,7 +13,7 @@
 # First and second burst are both one DASH in length. A properly coded transmission will not have any other sequential DASH'es
 #TODO Evaluate possibility of a second, delayed transmission. This is to give a 2nd chance at capturing a corrupted transmission
 
-from ir_tx import IR, STOP
+from ir_tx import IR
 
 class SLAM(IR):
     valid = (0xf, 0xf, 0)  # Max addr, data, toggle
@@ -55,7 +55,7 @@ class SLAM(IR):
     # However, the default wait times in ir_rx/nec.py are 4ms and 3ms
 
     def tx(self, addr, data, _):  # Ignore toggle
-        self.append(self.StartBlock_leader, self.StartBlock_follower) #Start Block TODO
+        self.append(self.StartBlock_leader, self.StartBlock_follower)
         addr |= ((addr ^ 0xf) << 4)
         for _ in range(8):
             self._bit(addr & 1)

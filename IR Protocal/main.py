@@ -1,111 +1,74 @@
-import ir_tx
-from ir_tx.slam import SLAM as tx_SLAM
-from ir_rx.slam import SLAM as rx_SLAM
-from ir_tx.nec import NEC as tx_NEC
-from ir_rx.nec import NEC_ABC as rx_NEC
-
 from machine import Pin
-from time import sleep, sleep_us, ticks_diff
+from time import sleep
 
+# For hardware testing
+# if both are false, it will simulate tx/rx by directly injecting and extracting a tx block 
 AUTOMATIC_TX = False
 AUTOMATIC_RX = True
-SLAM = True
 
 pin_Tx_test = Pin(6,Pin.IN,Pin.PULL_UP)
 txPin = Pin(19, Pin.OUT)
 rxPin = Pin(18, Pin.IN)
 
-def CheckArray(arr):
-    total = 0
-    for _ in arr:
-        total += int(_)
-    return total
-    
-###TX Functions
-def Tx_test_pin():
-    return pin_Tx_test.value()
-
-def TxTimeCalculation(input):
-    packet_list = input
-    tx_time = 0
-    for _ in packet_list:
-        tx_time += _
-    return tx_time
-
-def printSummery_TX(tx):
-    print("---TX Summery---")
-    if SLAM:
-        print(f"Dot: {tx._DOT}")
-        print(f"Dash: {tx._DASH}")
-    else:
-        print(f"DOT/DASH length not available. NEC Defaults: 563, 1687")
-    if CheckArray(tx._arr) > 0:
-        tx_array = tx._arr
-        print(f"Number of on/offs: {len(tx_array)} Time in us: {TxTimeCalculation(tx_array)}")
-        print(f"(TX: {tx_array}")
-
-###RX Functions
-def callback(cmd, addr, _):
-    print(f"Address: {hex(addr)} Cmd: {hex(cmd)} ")
-
-def calculate_pulsewidths(RxBlock):
-    timeBlock = []
-    for i in range(0,len(RxBlock)-1):
-        timeBlock.append(ticks_diff(RxBlock[i+1],RxBlock[i]))
-    return timeBlock
-
-def runTest(data):
-    # for _ in data:
-    #     if _ > 0:
-    #         RX._cb_pin(0)
-    #         sleep_us(_)
-    i = 0
-    for _ in data:
-        if i==0:
-            RX._times[0] = _
-        else:
-            RX._times[i] = RX._times[i-1] + _
-        print(f"{_}", end = " ")
-        i += 1
-    RX._cb_pin(0)
-    print(f"RX: {calculate_pulsewidths(RX._times)}")
-    RX.decode(0)
-
-def printSummery_RX(rx):
-    print("---RX Summery---")
-    if SLAM:
-        print(f"Dot: {rx._DOT}")
-        print(f"Dash: {rx._DASH}")
-        print(f"Threshold: {rx._DASH_Threshold}")
-        print(f"RX block Length {rx._txBlock}")
-
-###
-
 if AUTOMATIC_TX:
-    import ir_tx.test
-else:
-    if SLAM:
-        TX = tx_SLAM(txPin)
-        RX = rx_SLAM(rxPin, callback)
-    else:
-        TX = tx_NEC(txPin)
-        RX = rx_NEC(rxPin, 0,0, callback)
-    print("SLAM test") if SLAM else print("NEC Test")
+    import ir_tx.test as tx
+    from ir_tx.slam import SLAM as tx_SLAM
 
-if AUTOMATIC_RX:
-    printSummery_TX(TX)
-    printSummery_RX(RX)
-    print("--RX Test, waiting for signal--")
+    TX = tx_SLAM(txPin)
+    tx.printSummery(TX)
+
+    tx.main(TX)
+elif AUTOMATIC_RX:
+    import ir_rx.test as rx
+    from ir_rx.slam import SLAM as rx_SLAM
+    from ir_rx.print_error import print_error
+
+    RX = rx_SLAM(rxPin, rx.callback)
+    RX.error_function(print_error)
+    rx.printSummery(RX)
+
     while True:
         sleep(0.1)
 else:
-    print("Running Software Test")
-    
-    TX.tx(0x5,0xF,None)
-    printSummery_TX(TX)
-    printSummery_RX(RX)
+    import ir_tx.test as tx
+    from ir_tx.slam import SLAM as tx_SLAM
 
+    import ir_rx.test as rx
+    from ir_rx.slam import SLAM as rx_SLAM
+    from ir_rx.print_error import print_error
 
+    TX = tx_SLAM(txPin)
+    RX = rx_SLAM(rxPin, rx.callback)
+    RX.error_function(print_error)
+    tx.printSummery(TX)
+    rx.printSummery(RX)
+    print("\nRunning Software Test")
+
+    print("-Good Data Test. Expect Address: 0x2, Cmd 0xF")
+    TX.transmit(0x02,0xF)
     txBlock = TX._arr
-    print("-Good Data Test. Expect Address: 0x5, Cmd 0xF")
-    runTest(txBlock)
+    rx.runTest(txBlock, RX)
+
+# def CheckArray(arr):
+#     total = 0
+#     for _ in arr:
+#         total += int(_)
+#     return total
+
+
+# print("Good Data Test. Expect Address: 0x5, Cmd 0xF")
+# runTest(DataStream)
+
+# print("Bad Data: Missing end")
+# BadDataStream=DataStream[:]
+# BadDataStream.append(100)
+# runTest(BadDataStream)
+
+# print("Bad Data: Flipped Bit")
+# BadDataStream=DataStream[:]
+# BadDataStream[5] = 1687
+# runTest(BadDataStream)
+
+# # print(f"Array of edge times: {slam_test._times}")
+# # print(f"Number of edges: {slam_test.edge}")
+# # print(f"Size of start block: {ticks_diff(slam_test._times[2],slam_test._times[1])}")

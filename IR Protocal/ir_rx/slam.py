@@ -74,12 +74,13 @@ class SLAM(IR_RX):
                 print(f"Too many edges: {self.edge}")
                 raise RuntimeError(self.OVERRUN)
             width = ticks_diff(self._times[1], self._times[0])
-            if width < self.StartBlock_leader:  # 2.5ms leading mark for all valid data
+            if width < self.StartBlock_leader:  # 
                 print(f"Bad StartBlock Leader. Expected: {self.StartBlock_leader} Got: {width}")
                 raise RuntimeError(self.BADSTART)
             width = ticks_diff(self._times[2], self._times[1])
             if width > self.StartBlock_follower:  # 4.5ms space for normal data
                 if self.edge < self._edges:  # Haven't received the correct number of edges
+                    print(f"Too Few edges. Expected: {self._edges} Got:{self.edge}")
                     raise RuntimeError(self.BADBLOCK)
                 # Time spaces only (marks are always 562.5µs)
                 # Space is 1.6875ms (1) or 562.5µs (0)
