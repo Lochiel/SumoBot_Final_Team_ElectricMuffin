@@ -9,6 +9,8 @@ import tx
 from constants import command_codes
 import uasyncio as asyncio
 
+led = Pin("LED", Pin.OUT)
+
 # Initialize I2C. Adjust pin numbers based on your Pico's configuration
 # SCL = Yellow Wire, SDA = Blue Wire
 i2c = I2C(0, scl=Pin(17), sda=Pin(16))
@@ -71,7 +73,8 @@ def transmit(code):
     # time.sleep_ms(constants.TX_DELAY)  # Delay to prevent overwhelming the output
     if code is not "STOP":
         print(f"Transmitting {command_codes[code]}")
-    asyncio.run(tx.transmit(command_codes[code].code))
+    tx.transmit(command_codes[code].code)
+    led.toggle()
 
 
 #############
