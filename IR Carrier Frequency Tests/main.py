@@ -12,8 +12,8 @@ if Role == "Jammer":
 elif Role == "Sender":
     import TX
     Freq=       TX.FREQ_38
-    Tx_Delay=   3
-    Addr=       0xAA
+    Tx_Delay=   2
+    Addr=       0x5
 else:
     import RX
 

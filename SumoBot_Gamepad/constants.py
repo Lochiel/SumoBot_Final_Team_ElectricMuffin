@@ -4,7 +4,7 @@ PIN_LED3 = 4
 PIN_LED4 = 5
 
 PIN_RX = 18
-PIN_TX = 17
+PIN_TX = 19
 
 PIN_MOTOR_A_GEAR = 12 #Labelled AIN1 on PCB. Phase on Documentaiton and DRV
 PIN_MOTOR_A_THROTTLE = 13 #Labelled AIN2 on PCB. Enable on Documentaiton and DRV
@@ -28,12 +28,6 @@ FREQ_56 = 56_000
 
 FREQ = FREQ_38
 
-SLOW = 25
-FAST = 50
-TURN_SLOW = 15
-TURN_FAST = 25
-TURBO = 100
-
 class Commands():
 #     code: int
 #     description: str
@@ -49,7 +43,7 @@ class Commands():
     def __eq__(self, __value: object) -> bool:
         return __value == self.code
     
-    def setCallback(self, callback, value: None|int|str):
+    def setCallback(self, callback, value: None|int):
         self.callback = callback
         self.args=value
 
