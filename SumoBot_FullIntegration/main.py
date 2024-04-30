@@ -1,23 +1,17 @@
 # SumoBot Control Main
 # Cam Chalmers, Anusha Venka, Melissa Clark
 # ECEN 2440 - Applications of Embedded System. Spring '24
-#
 
-#TODO Write Neo-Pixel Handling
-#TODO Write Back Sensor Handling
-
-## Interrupt based main.py
 
 import constants
 from constants import command_codes
-# import uasyncio as asyncio
 from RX import IR_RX
 from machine import Pin
 from Motor import Motor
 from time import sleep, sleep_ms
 import time
 import constants
-#import distance_sensor
+#import distance_sensor #TODO fix issues in distance_sensor.py
 
 led = Pin(constants.PIN_LED1, Pin.OUT)
 led2 = Pin(constants.PIN_LED2, Pin.OUT)
@@ -180,9 +174,10 @@ def main():
             led2.toggle()
             time.sleep_ms(50)
             AutoStopCheck()
+            #TODO Fix issues in #distance_sensor.py, then uncomment the below lines
             # turn = distance_sensor.check_distance()
             # if turn:
-            #   await Turn180()
+            #   Turn180()
             pass
 
 main()

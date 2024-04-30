@@ -70,10 +70,11 @@ def process_buttons(current_buttons):
 
 ##############
 def transmit(code):
-    # time.sleep_ms(constants.TX_DELAY)  # Delay to prevent overwhelming the output
+    delay = None
     if code is not "STOP":
         print(f"Transmitting {command_codes[code]}")
-    tx.transmit(command_codes[code].code)
+        delay = 95 #ms between repeating the transmission once. Repeating the transmission reduces the impact of noise and jamming
+    tx.transmit(command_codes[code].code, Repeat_Delay=delay)
     led.toggle()
 
 
