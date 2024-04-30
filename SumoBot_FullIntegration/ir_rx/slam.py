@@ -1,8 +1,9 @@
+# SumoBot Little Asynchronous Messaging - SLAM 
 # Decoder for IR transmission of SumoBots
-# Written by Cam Chalmers
+# Written by Team Electric Muffin
+# Cam Chalmers, Melissa Clark, Anusha Venkateswaran
 # For ECEN 2440 - Applications of Embedded Systems, Spring '24
-# Modified NEC code
-# Based on code by Peter Hinch
+# Modified from NEC code by Peter Hinch
 
 #DONE Remove non-SLAM handling; Samsung, NEC-8 etc.
 #DONE Reduce data and address size from 8 to 4 bits
@@ -10,7 +11,6 @@
 #DONE Make burst time based on tx frequency, so that higher frequencies reduce tx time
 #DONE Reduce Start block size 
 # First and second burst are both one DASH in length. A properly coded transmission will not have any other sequential DASH'es
-#TODO Evaluate possibility of a second, delayed transmission. This is to give a 2nd chance at capturing a corrupted transmission
 
 from utime import ticks_us, ticks_diff
 from ir_rx import IR_RX
@@ -20,8 +20,6 @@ class SLAM(IR_RX):
     _DASH_Ratio = 2 #Number of times we multiply _DOT to get the length of _DASH
     _CYCLES_PER_DOT = 10 #Number of IR cycles in a DOT. Determined by the IR Reciever, check the datasheet for information
 
-    #NOTE In nec.py, StartBlock times are 9ms on then 4.5ms off
-    # However, the default wait times in ir_rx/nec.py are 4ms and 3ms
     def __init__(self, pin, callback, freq=38_000, *args):
         self._edges = 36 #Number of expected edges
         self._setBurstLength(freq)
@@ -56,8 +54,8 @@ class SLAM(IR_RX):
         zero_length = (bits * self._DOT)
         ones_length = (bits/2 * (self._DOT + self._DASH_Ratio*self._DOT))
         data_length = zero_length + ones_length
+
         #Include header information.
-        #TODO Update the header information when we have nailed that down
         txBlock_us = data_length + self.StartBlock_leader*2 + self.StartBlock_follower*2
         txBlock_ms = int(txBlock_us / 1000) # convert us to ms
         return txBlock_ms
@@ -74,16 +72,15 @@ class SLAM(IR_RX):
                 print(f"Too many edges: {self.edge}")
                 raise RuntimeError(self.OVERRUN)
             width = ticks_diff(self._times[1], self._times[0])
-            if width < self.StartBlock_leader:  # 
+            if width < self.StartBlock_leader:  #Check 1st half of Start Block
                 print(f"Bad StartBlock Leader. Expected: {self.StartBlock_leader} Got: {width}")
                 raise RuntimeError(self.BADSTART)
             width = ticks_diff(self._times[2], self._times[1])
-            if width > self.StartBlock_follower:  # 4.5ms space for normal data
+            if width > self.StartBlock_follower: # Check 2nd half of Start Block
                 if self.edge < self._edges:  # Haven't received the correct number of edges
                     print(f"Too Few edges. Expected: {self._edges} Got:{self.edge}")
                     raise RuntimeError(self.BADBLOCK)
-                # Time spaces only (marks are always 562.5µs)
-                # Space is 1.6875ms (1) or 562.5µs (0)
+
                 # Skip last bit which is always 1
                 val = 0
                 for edge in range(3, self._edges - 2, 2):

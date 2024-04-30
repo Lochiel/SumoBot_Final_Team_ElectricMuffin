@@ -1,9 +1,9 @@
 # SumoBot Little Asynchronous Messaging - SLAM 
 # Encoder for IR transmission of SumoBots
-# Written by Cam Chalmers
+# Written by Team Electric Muffin
+# Cam Chalmers, Melissa Clark, Anusha Venkateswaran
 # For ECEN 2440 - Applications of Embedded Systems, Spring '24
-# Modified NEC code
-# Based on code by Peter Hinch
+# Modified from NEC code by Peter Hinch
 
 #DONE Reduce data and address size from 8 to 4 bits
 #DONE Reduce burst length - Need Real world testing
@@ -11,7 +11,6 @@
 #DONE Make burst time based on tx frequency, so that higher frequencies reduce tx time
 #DONE Reduce Start block size 
 # First and second burst are both one DASH in length. A properly coded transmission will not have any other sequential DASH'es
-#TODO Evaluate possibility of a second, delayed transmission. This is to give a 2nd chance at capturing a corrupted transmission
 
 from ir_tx import IR
 
@@ -50,9 +49,6 @@ class SLAM(IR):
     def _setStartBlock(self):
         self.StartBlock_leader = self._DASH # Length of Start Block
         self.StartBlock_follower = self._DASH
-    
-    #NOTE In nec.py, StartBlock times are 9ms on then 4.5ms off
-    # However, the default wait times in ir_rx/nec.py are 4ms and 3ms
 
     def tx(self, addr, data, _):  # Ignore toggle
         self.append(self.StartBlock_leader, self.StartBlock_follower)
