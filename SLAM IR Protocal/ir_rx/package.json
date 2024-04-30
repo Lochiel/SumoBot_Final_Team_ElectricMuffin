@@ -1,0 +1,9 @@
+{
+  "urls": [
+    ["ir_rx/__init__.py", "github:peterhinch/micropython_ir/ir_rx/__init__.py"],
+    ["ir_rx/acquire.py", "github:peterhinch/micropython_ir/ir_rx/acquire.py"],
+    ["ir_rx/nec.py", "github:peterhinch/micropython_ir/ir_rx/nec.py"],
+    ["ir_rx/print_error.py", "github:peterhinch/micropython_ir/ir_rx/print_error.py"],
+  ],
+  "version": "0.1"
+}

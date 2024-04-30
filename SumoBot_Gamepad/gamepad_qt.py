@@ -1,16 +1,15 @@
-# # Kiran Jojare
-# # University of Colorado Boulder
-# # Graduate Student, Department of Electrical Engineering, Embedded Systems Specialization
-
-# # Test code to check the interfaced seesaw library for interacting with Gamepad QT with PICO
+# Team 2, 2440 Spring '24
+# Cam Chalmers, Melissa Chavez, Anusha V
+# # Adapted from code by Kiran Jojare
 
 from machine import I2C, Pin
 import seesaw
 import time
 import tx
-import constants
 from constants import command_codes
 import uasyncio as asyncio
+
+led = Pin("LED", Pin.OUT)
 
 # Initialize I2C. Adjust pin numbers based on your Pico's configuration
 # SCL = Yellow Wire, SDA = Blue Wire
@@ -37,23 +36,13 @@ BUTTONS_MASK = (1 << BUTTON_X) | (1 << BUTTON_Y) | \
 
 # Initialize button states
 button_states = {
-   BUTTON_A: False,
-   BUTTON_B: False,
-   BUTTON_X: False,
-   BUTTON_Y: False,
-   BUTTON_START: False,
-   BUTTON_SELECT: False
+   BUTTON_A: True,
+   BUTTON_B: True,
+   BUTTON_X: True,
+   BUTTON_Y: True,
+   BUTTON_START: True,
+   BUTTON_SELECT: True
 }
-
-# Initialize TURBO state
-turbo = False
-
-# Initialize last button states
-last_buttons = 0
-
-# Initialize joystick center position
-joystick_center_x = 511
-joystick_center_y = 497
 
 def setup_buttons():
    """Configure the pin modes for buttons."""
@@ -63,73 +52,160 @@ def read_buttons():
    """Read and return the state of each button."""
    return seesaw_device.digital_read_bulk(BUTTONS_MASK)
 
-def set_led(pin, state):
-   """Turn the LED connected to the given pin on or off."""
-   pin.value(state)
+def process_buttons(current_buttons):
+    """Returns tuple of the button states"""
+    # current_buttons is a binary string, where each position indicates a different button
+    # 1<<X creates a binary string with a 1 only in the location for a specific button
+    # & compares the strings, and returns zero if there is no match, or non-zero if there is a match
+    # in Python, any non-zero value evaluats to TRUE
 
-def handle_button_press(button):
-    """Toggle the corresponding LED state on button press."""
-    global button_states, turbo
-    button_states[button] = not button_states[button]
-    if button == BUTTON_A:
-        turbo = True #TODO This should be combined with a joystick forward
-    elif button == BUTTON_B:
-        asyncio.run(tx.transmit(command_codes["NP_3"].code))
-    elif button == BUTTON_X:
-        asyncio.run(tx.transmit(command_codes["NP_1"].code))
-    elif button == BUTTON_Y:
-        asyncio.run(tx.transmit(command_codes["NP_2"].code))
-    elif button == BUTTON_SELECT:
-        asyncio.run(tx.transmit(command_codes["SEN_BACK"].code))
-    print("Button", button, "is", "pressed" if button_states[button] else "released")
+    btn_A = not(bool(current_buttons & (1<<BUTTON_A)))
+    btn_B = not(bool(current_buttons & (1<<BUTTON_B)))
+    btn_X = not(bool(current_buttons & (1<<BUTTON_X)))
+    btn_Y = not(bool(current_buttons & (1<<BUTTON_Y)))
+    btn_Start = not(bool(current_buttons & (1<<BUTTON_START)))
+    btn_Select = not(bool(current_buttons & (1<<BUTTON_SELECT)))
+
+    return (btn_A, btn_B, btn_X, btn_Y, btn_Select, btn_Start)
+
+##############
+def transmit(code):
+    delay = None
+    if code is not "STOP":
+        print(f"Transmitting {command_codes[code]}")
+        delay = 95 #ms between repeating the transmission once. Repeating the transmission reduces the impact of noise and jamming
+    tx.transmit(command_codes[code].code, Repeat_Delay=delay)
+    led.toggle()
+
+
+#############
+
+##  |---Deadzone---|            |---Middle--|                   |---Max---|
+#   | deadzone > position       | middle > position > deadzone  | position > middle
+#   | Do Nothing, output STOP   | Output SLOW                   | Output FAST
+
+# How many ms between analog joystick reads?
+GAMEPAD_READ_DELAY = 200
+
+# Initialize joystick center position
+joystick_center_x = 511
+joystick_center_y = 497
+
+#deadzon
+joystick_deadzone_x = 50
+joystick_deadzone_y = 50
+
+#distance from  center
+joystick_middle_x = 480
+joystick_middle_y = 480
+
+def joystick_absolute_values(position, center, dead, middle):
+    """Returns the joysticks distance from center"""
+    #get distance from center
+    distance = abs(position - center)
+
+    #translate that into 0,1,2
+    value = 0
+    if (distance > dead):
+        if (distance < middle):
+            value = 1
+        elif (distance >= middle):
+            value = 2
+    else:
+        value = 0
+    
+    # set the sign for left/right
+    # Negative = left
+    if (position - center) > 0:
+        value = value * -1
+    
+    return value
+
+def joystick_status(current_x, current_y):
+    # Returns tuple (x,y)
+    # x,y = 0,1,2 for joystick distance. 0 = centered, 1=moderate, 2 = full
+    # Negative values indicate left/down
+    
+    # Translate into simplifed values
+    x_value = joystick_absolute_values(current_x, joystick_center_x, joystick_deadzone_x, joystick_middle_x)
+    y_value = joystick_absolute_values(current_y, joystick_center_y, joystick_deadzone_y, joystick_middle_y)
+
+    return (x_value,y_value)
+
+#################################
 
 def main():
    """Main program loop."""
-   global last_buttons  # Ensure last_buttons is recognized as a global variable
 
    setup_buttons()
-
-   last_x, last_y = seesaw_device.analog_read(JOYSTICK_X_PIN), seesaw_device.analog_read(JOYSTICK_Y_PIN)
-   joystick_threshold = 50  # Adjust threshold as needed
+   
+   gamepad_lastread_tick = time.ticks_ms()
 
    while True:
-        current_buttons = read_buttons()
-
-        # Check if button state has changed
-        for button in button_states:
-           if current_buttons & (1 << button) and not last_buttons & (1 << button):
-               handle_button_press(button)
-
-        # Read joystick values
-        current_x = seesaw_device.analog_read(JOYSTICK_X_PIN)
-        current_y = seesaw_device.analog_read(JOYSTICK_Y_PIN)
-
-       # Check if joystick position has changed significantly
-        if abs(current_x - last_x) > joystick_threshold or abs(current_y - last_y) > joystick_threshold:
-            print("Joystick moved - X:", current_x, ", Y:", current_y)
-            last_x, last_y = current_x, current_y
+        if (time.ticks_diff(time.ticks_ms(), gamepad_lastread_tick) > GAMEPAD_READ_DELAY):
+            gamepad_lastread_tick = time.ticks_ms()
 
 
-            #TODO Add multiple speeds based on joystick distance
+###### Buttons
+            current_buttons = read_buttons()
+            btn_A, btn_B, btn_X, btn_Y, btn_Select, btn_Start = process_buttons(current_buttons)
+            turbo = btn_A
 
-            # Determine which command code to tx based on joystick direction
-            if current_y < joystick_center_y - joystick_threshold:  # Joystick moved up
-                if turbo:
-                    asyncio.run(tx.transmit(command_codes["FWD_TURBO"].code))
-                else:
-                    asyncio.run(tx.transmit(command_codes["FWD_SLOW"].code))
-            elif current_y > joystick_center_y + joystick_threshold:  # Joystick moved down
-               asyncio.run(tx.transmit(command_codes["REV"].code))
-            elif current_x < joystick_center_x - joystick_threshold:  # Joystick moved right
-               asyncio.run(tx.transmit(command_codes["CW_SLOW"].code))
-            elif current_x > joystick_center_x + joystick_threshold:  # Joystick moved left
-               asyncio.run(tx.transmit(command_codes["CCW_SLOW"].code))
+###### Joystick  
+            # Read joystick values
+            absolute_x = seesaw_device.analog_read(JOYSTICK_X_PIN)
+            absolute_y = seesaw_device.analog_read(JOYSTICK_Y_PIN)
+
+            current_x, current_y = joystick_status(absolute_x, absolute_y)
+
+###### Command Priority order for Transmission
+# - Turbo
+# - Full direction
+# - CW/CCW
+# - Fwd/Rev
+# - Sensor Toggle
+# - NeoPixel Mode
+
+
+            if (turbo) & (current_y ==2):
+                transmit("FWD_TURBO")
+            elif (turbo) & (current_y == -2):
+                transmit("180")
+            elif (turbo) & (current_x == 2):
+                transmit("CW_DODGE")
+            elif (turbo) & (current_x == -2):
+                transmit("CCW_DODGE")
+
+            elif (current_x == 2):
+                transmit("CW_FAST")
+            elif (current_x == -2):
+                transmit("CCW_FAST")
+            elif (current_y == 2):
+                transmit("FWD_FAST")
+
+            elif (current_x == 1):
+                transmit("CW_SLOW")
+            elif (current_x == -1):
+                transmit("CCW_SLOW")
+
+            elif (current_y == 1):
+                transmit("FWD_SLOW")
+            elif (current_y == -1) or (current_y == -2):
+                transmit("REV")
+            
+            elif (btn_Start) or (btn_Select):
+                transmit("SEN_BACK")
+            elif (btn_B):
+                transmit("NP_3")
+            elif (btn_X):
+                transmit("NP_2")
+            elif (btn_Y):
+                transmit("NP_1")
+            
             else:
-               asyncio.run(tx.transmit(command_codes["STOP"].code))
+                transmit("STOP")
 
-        last_buttons = current_buttons
-
-        time.sleep_ms(constants.TX_DELAY)  # Delay to prevent overwhelming the output
 
 if __name__ == "__main__":
+   GAMEPAD_READ_DELAY = 500
    main()

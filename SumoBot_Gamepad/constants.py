@@ -18,8 +18,9 @@ PIN_NEOPIXEL2 = 7
 PIN_SENSOR_TRIGGER = 21
 PIN_SENSOR_RETURN = 20
 
-ADDRESS = 0x5
-TX_DELAY = 300 # ms after start of Tx that we will wait before attempting to transmit again
+ADDRESS = 0x2
+TX_DELAY = 0 # ms after start of Tx that we will wait before attempting to transmit again
+# Setting to zero b/c our gamepade code also incorporates a delay
 
 FREQ_36 = 36_000
 FREQ_38 = 38_000 # Default
@@ -60,6 +61,9 @@ command_codes = {
     "NP_2": Commands(0x9, "NeoPixel Mode 2"),
     "NP_3": Commands(0xA, "NeoPixel Mode 3"),
     "SEN_BACK": Commands(0xB, "Back Sensor Toggle"),
+    "180": Commands(0xC, "180, in place, rotation"),
+    "CW_DODGE": Commands(0xD, "Dodge Clockwise"),
+    "CCW_DODGE": Commands(0xE, "Dodge CounterClockwise"),
 
     "STOP": Commands(0xF, "Stop Motors")
 }
