@@ -18,8 +18,8 @@ PIN_NEOPIXEL2 = 7
 PIN_SENSOR_TRIGGER = 21
 PIN_SENSOR_RETURN = 20
 
-ADDRESS = 0x5
-TX_DELAY = 300 # ms after start of Tx that we will wait before attempting to transmit again
+ADDRESS = 0x2
+TX_DELAY = 200 # ms after start of Tx that we will wait before attempting to transmit again
 
 FREQ_36 = 36_000
 FREQ_38 = 38_000 # Default
@@ -27,6 +27,12 @@ FREQ_40 = 40_000
 FREQ_56 = 56_000
 
 FREQ = FREQ_38
+
+SLOW = 25
+FAST = 50
+TURN_SLOW = 15
+TURN_FAST = 25
+TURBO = 100
 
 class Commands():
 #     code: int
@@ -43,7 +49,7 @@ class Commands():
     def __eq__(self, __value: object) -> bool:
         return __value == self.code
     
-    def setCallback(self, callback, value: None|int):
+    def setCallback(self, callback, value: None|int|str):
         self.callback = callback
         self.args=value
 
@@ -60,6 +66,9 @@ command_codes = {
     "NP_2": Commands(0x9, "NeoPixel Mode 2"),
     "NP_3": Commands(0xA, "NeoPixel Mode 3"),
     "SEN_BACK": Commands(0xB, "Back Sensor Toggle"),
+    "180": Commands(0xC, "180, in place, rotation"),
+    "CW_DODGE": Commands(0xD, "Dodge Clockwise"),
+    "CCW_DODGE": Commands(0xE, "Dodge CounterClockwise"),
 
     "STOP": Commands(0xF, "Stop Motors")
 }

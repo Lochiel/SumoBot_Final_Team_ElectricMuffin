@@ -1,6 +1,5 @@
 from machine import Pin
-from ir_rx.slam import SLAM
-# from ir_rx.nec import NEC_8 # Use the NEC 8-bit class
+from ir_rx.nec import NEC_8 # Use the NEC 8-bit class
 from ir_rx.print_error import print_error # for debugging
 import uasyncio as asyncio
 import constants
@@ -13,7 +12,7 @@ class IR_RX:
 
     # Setup the IR receiver
     self.ir_pin = Pin(pin, Pin.IN, Pin.PULL_UP) # Adjust the pin number based on your wiring
-    self.ir_receiver = SLAM(self.ir_pin, callback=self.ir_callback)
+    self.ir_receiver = NEC_8(self.ir_pin, callback=self.ir_callback)
 
     self.ir_receiver.error_function(print_error) # Optional: Use the print_error function for debugging  
     pass
@@ -27,7 +26,7 @@ class IR_RX:
 
 # Callback function to execute when an IR code is received
 def _ir_callback_test(data, _):
-    print(f"Received SLAM command! Data: 0x{data:02X}")
+    print(f"Received NEC command! Data: 0x{data:02X}")
  
 # Main loop to keep the script running
 if __name__ == "__main__":

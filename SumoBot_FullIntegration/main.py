@@ -1,22 +1,17 @@
 # SumoBot Control Main
 # Cam Chalmers, Anusha Venka, Melissa Clark
 # ECEN 2440 - Applications of Embedded System. Spring '24
-#
 
-#TODO Write Neo-Pixel Handling
-#TODO Write Back Sensor Handling
-
-## Interrupt based main.py
 
 import constants
 from constants import command_codes
-import uasyncio as asyncio
 from RX import IR_RX
 from machine import Pin
 from Motor import Motor
-from time import sleep
+from time import sleep, sleep_ms
+import time
 import constants
-import distance_sensor
+#import distance_sensor #TODO fix issues in distance_sensor.py
 
 led = Pin(constants.PIN_LED1, Pin.OUT)
 led2 = Pin(constants.PIN_LED2, Pin.OUT)
@@ -28,48 +23,44 @@ led2.value(0)
 led3.value(0)
 led4.value(0)
 
+last_tx_received_time = time.ticks_ms
+AUTOSTOP_TIMEOUT = 250 #ms from last tx recieved to initiate autostop
+
 # Setup Motor Instances
-motor_a = Motor(constants.PIN_MOTOR_A_THROTTLE, constants.PIN_MOTOR_A_GEAR)
-motor_b = Motor(constants.PIN_MOTOR_B_THROTTLE, constants.PIN_MOTOR_B_GEAR)
+motor_a = Motor(constants.PIN_MOTOR_A_THROTTLE, constants.PIN_MOTOR_A_GEAR, CWisFwd=False)
+motor_b = Motor(constants.PIN_MOTOR_B_THROTTLE, constants.PIN_MOTOR_B_GEAR, CWisFwd=True)
 
 motor_a.stop()
 motor_b.stop()
 
-#TODO Replace placeholders with functions in respective modules
-def MotorFWD(speed:int): #Placeholder, actual function should be in Motors.py
-    # print("MotorFWD called with value: ",speed)
+def MotorFWD(speed:int): 
     motor_a.fwd(speed)
     motor_b.fwd(speed)
     print(f"Motor_A: {motor_a} Motor_B: {motor_b}")
 
-
-def MotorREV(speed:int): #Placeholder, actual function should be in Motors.py
-    # print("MotorREV called", speed)
+def MotorREV(speed:int): 
     motor_a.rev(speed)
     motor_b.rev(speed)
     print(f"Motor_A: {motor_a} Motor_B: {motor_b}")
 
-def MotorCW(speed:int): #Placeholder, actual function should be in Motors.py
-    print("MotorCW called with value: ", speed)
+def MotorCW(speed:int): 
     motor_a.fwd(speed)
     motor_b.rev(speed)
     print(f"Motor_A: {motor_a} Motor_B: {motor_b}")
     pass
 
-def MotorCCW(speed:int): #Placeholder, actual function should be in Motors.py
-    print("MotorCCW called with value: ", speed)
+def MotorCCW(speed:int): 
     motor_a.rev(speed)
     motor_b.fwd(speed)
     print(f"Motor_A: {motor_a} Motor_B: {motor_b}")
     pass
 
 def MotorSTOP():
-    # print("MotorSTOP called")
     motor_a.stop()
     motor_b.stop()
     print(f"Motor_A: {motor_a} Motor_B: {motor_b}")
 
-def NeoPixelMode(mode:int): #Placeholder, actual function should be in SumoNeoPixels.py
+def NeoPixelMode(mode:int):
     if mode == 1:
         led2.toggle()
     elif mode == 2:
@@ -84,25 +75,45 @@ def BackSensor_Toggle(): #Placeholder, actual function should be in DistanceSeno
     print("DistanceSensor_Toggle called")
     pass
 
-async def TurnMotors(turn): # If check_distance (in distancesensor.py) returns true, turn Bot CW
-    if(turn): 
-        MotorCW(50)
-        await asyncio.sleep(3)
-        MotorSTOP()
+def Turn180(): # If check_distance (in distancesensor.py) returns true, turn Bot CW 
+    MotorCW(100)
+    sleep_ms(200)
+    MotorSTOP()
     pass
 
+#TODO Write proper dodge function
+def Dodge(direction):
+    if (direction == "CW"):
+        motor_b.rev(100)
+        motor_a.fwd(20)
+        pass
+    elif (direction == "CCW"):
+        motor_a.rev(100)
+        motor_b.fwd(20)
+        pass
+    sleep_ms(300)
+    MotorSTOP()
+
+def AutoStopCheck():
+    global last_tx_received_time
+    if time.ticks_diff(time.ticks_ms(),last_tx_received_time)>AUTOSTOP_TIMEOUT:
+        MotorSTOP()
+        last_tx_received_time = time.ticks_ms()
+
 ## Set the callback functions for each command code
-command_codes["FWD_SLOW"].setCallback(MotorFWD, 25)
-command_codes["FWD_FAST"].setCallback(MotorFWD, 50)
-command_codes["FWD_TURBO"].setCallback(MotorFWD, 100)
+command_codes["FWD_SLOW"].setCallback(MotorFWD, constants.SLOW)
+command_codes["FWD_FAST"].setCallback(MotorFWD, constants.FAST)
+command_codes["FWD_TURBO"].setCallback(MotorFWD, constants.TURBO)
 
-command_codes["REV"].setCallback(MotorREV, 50)
+command_codes["REV"].setCallback(MotorREV, constants.FAST)
 
-command_codes["CW_SLOW"].setCallback(MotorCW, 25)
-command_codes["CW_FAST"].setCallback(MotorCW, 50)
+command_codes["CW_SLOW"].setCallback(MotorCW, constants.TURN_SLOW)
+command_codes["CW_FAST"].setCallback(MotorCW, constants.TURN_FAST)
+command_codes["CW_DODGE"].setCallback(Dodge, "CW")
 
-command_codes["CCW_SLOW"].setCallback(MotorCCW, 25)
-command_codes["CCW_FAST"].setCallback(MotorCCW, 50)
+command_codes["CCW_SLOW"].setCallback(MotorCCW, constants.TURN_SLOW)
+command_codes["CCW_FAST"].setCallback(MotorCCW, constants.TURN_FAST)
+command_codes["CCW_DODGE"].setCallback(Dodge, "CCW") 
 
 command_codes["STOP"].setCallback(MotorSTOP, None)
 
@@ -111,12 +122,15 @@ command_codes["NP_2"].setCallback(NeoPixelMode, 2)
 command_codes["NP_3"].setCallback(NeoPixelMode, 3)
 
 command_codes["SEN_BACK"].setCallback(BackSensor_Toggle, None)
+command_codes["180"].setCallback(Turn180, None)
 
 ## This will compare the recieved data to the codes in command_codes
 ## If a match is found, it will call the stored function with the stored value
 def callback_RX(data: int):
+    global last_tx_received_time
     for _ in command_codes: 
         if command_codes[_] == data:
+            last_tx_received_time = time.ticks_ms()
             led.toggle()
             FuncToCall = command_codes[_].callback
             ArgToPass = command_codes[_].args
@@ -136,13 +150,13 @@ IR_Reciever = IR_RX(constants.PIN_RX, constants.ADDRESS, callback_RX)
 MANUAL = False
 TESTING = False
 
-async def _testCallBack():
+def _testCallBack():
     for _ in command_codes:
         print("Testing Code: ", command_codes[_])
         callback_RX(command_codes[_].code)
-        await asyncio.sleep(2)
+        sleep(2)
 
-async def main():
+def main():
     print("Loading Main...")
     led.value(0) # Turn off led now that everything is loaded
     if MANUAL:
@@ -152,14 +166,18 @@ async def main():
     elif TESTING:
         led4.value(1)
         print("Starting Testing")
-        await _testCallBack()
+        _testCallBack()
     else:
         led2.value(1)
         print("Starting...")
         while True:
-            led3.toggle()
-            await asyncio.sleep_ms(50)
-            turn = distance_sensor.check_distance()
-            await TurnMotors(turn)
+            led2.toggle()
+            time.sleep_ms(50)
+            AutoStopCheck()
+            #TODO Fix issues in #distance_sensor.py, then uncomment the below lines
+            # turn = distance_sensor.check_distance()
+            # if turn:
+            #   Turn180()
             pass
-asyncio.run(main())
+
+main()
