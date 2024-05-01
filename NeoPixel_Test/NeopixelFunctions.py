@@ -47,7 +47,6 @@ mode = 0
 pin2 = Pin(18, Pin.OUT)
 np2 = NeoPixel(pin2, 8)
 
-
 #Jewel Pinout
 pin = Pin(15, Pin.OUT)
 np = NeoPixel(pin, 7)
@@ -97,6 +96,8 @@ def RunPattern(neopixel: NeoPixel, colorlist):
             neopixel[i] = Target_color2
         neopixel.write()
         # await asyncio.sleep(0.1)
+
+
 
 def RainbowPattern(neopixel: NeoPixel, colorlist=color_list2):
     SingleInit(neopixel, colorlist)

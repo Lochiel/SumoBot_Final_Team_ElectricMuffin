@@ -12,6 +12,7 @@ from time import sleep, sleep_ms
 import time
 import constants
 import distance_sensor 
+import leds
 
 led = Pin(constants.PIN_LED1, Pin.OUT)
 led2 = Pin(constants.PIN_LED2, Pin.OUT)
@@ -62,13 +63,7 @@ def MotorSTOP():
 
 #TODO Call leds mode select function
 def NeoPixelMode(mode:int):
-    if mode == 1:
-        led2.toggle()
-    elif mode == 2:
-        led3.toggle()
-    elif mode == 3:
-        led4.toggle()
-
+    leds.mode(mode)
     print("NeoPixelMode called with value: ", mode)
     pass
 
@@ -154,7 +149,7 @@ IR_Reciever = IR_RX(constants.PIN_RX, constants.ADDRESS, callback_RX)
 # Manual = allows for functions to be called from the REPL
 # Test = cycles through the command codes with a short delay
 
-MANUAL = False
+MANUAL = True
 TESTING = False
 
 def _testCallBack():
