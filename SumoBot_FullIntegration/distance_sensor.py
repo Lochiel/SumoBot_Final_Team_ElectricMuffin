@@ -16,7 +16,7 @@ def measure_distance():
     trigger_pin.low()
     
     timeout = 25000  
-    start_time = time.ticks_us()
+    start_time = time.ticks_us()   
 
     while echo_pin.value() == 0:
         if time.ticks_diff(time.ticks_us(), start_time) > timeout:
