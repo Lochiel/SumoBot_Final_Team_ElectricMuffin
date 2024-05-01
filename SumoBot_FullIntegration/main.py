@@ -60,6 +60,7 @@ def MotorSTOP():
     motor_b.stop()
     print(f"Motor_A: {motor_a} Motor_B: {motor_b}")
 
+#TODO Call leds mode select function
 def NeoPixelMode(mode:int):
     if mode == 1:
         led2.toggle()
@@ -75,7 +76,7 @@ def BackSensor_Toggle(): #Placeholder, actual function should be in DistanceSeno
     print("DistanceSensor_Toggle called")
     pass
 
-def Turn180(): # If check_distance (in distancesensor.py) returns true, turn Bot CW 
+def Turn180(): 
     MotorCW(100)
     sleep_ms(200)
     MotorSTOP()
@@ -91,7 +92,7 @@ def Dodge(direction):
         motor_a.rev(100)
         motor_b.fwd(20)
         pass
-    sleep_ms(300)
+    sleep_ms(750)
     MotorSTOP()
 
 def AutoStopCheck():
@@ -99,6 +100,12 @@ def AutoStopCheck():
     if time.ticks_diff(time.ticks_ms(),last_tx_received_time)>AUTOSTOP_TIMEOUT:
         MotorSTOP()
         last_tx_received_time = time.ticks_ms()
+
+def DistanceCheck():
+    turn = distance_sensor.check_distance()
+    if turn:
+        Turn180()
+
 
 ## Set the callback functions for each command code
 command_codes["FWD_SLOW"].setCallback(MotorFWD, constants.SLOW)
@@ -148,7 +155,7 @@ IR_Reciever = IR_RX(constants.PIN_RX, constants.ADDRESS, callback_RX)
 # Test = cycles through the command codes with a short delay
 
 MANUAL = False
-TESTING = True
+TESTING = False
 
 def _testCallBack():
     for _ in command_codes:
@@ -179,9 +186,8 @@ def main():
             led2.toggle()
             time.sleep_ms(50)
             AutoStopCheck()
-            turn = distance_sensor.check_distance()
-            if turn:
-              Turn180()
+            DistanceCheck()
+            #TODO call led update
             pass
 
 main()
