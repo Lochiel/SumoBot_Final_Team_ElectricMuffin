@@ -11,7 +11,7 @@ from Motor import Motor
 from time import sleep, sleep_ms
 import time
 import constants
-#import distance_sensor #TODO fix issues in distance_sensor.py
+import distance_sensor 
 
 led = Pin(constants.PIN_LED1, Pin.OUT)
 led2 = Pin(constants.PIN_LED2, Pin.OUT)
@@ -148,7 +148,7 @@ IR_Reciever = IR_RX(constants.PIN_RX, constants.ADDRESS, callback_RX)
 # Test = cycles through the command codes with a short delay
 
 MANUAL = False
-TESTING = False
+TESTING = True
 
 def _testCallBack():
     for _ in command_codes:
@@ -165,8 +165,13 @@ def main():
         return
     elif TESTING:
         led4.value(1)
-        print("Starting Testing")
+        print("Starting Testing of commands")
         _testCallBack()
+        print("Starting testing of automatic functions")
+        while True:
+            time.sleep_ms(50)
+            if distance_sensor.check_distance():
+                print("Object in range, turn 180")
     else:
         led2.value(1)
         print("Starting...")
@@ -174,10 +179,9 @@ def main():
             led2.toggle()
             time.sleep_ms(50)
             AutoStopCheck()
-            #TODO Fix issues in #distance_sensor.py, then uncomment the below lines
-            # turn = distance_sensor.check_distance()
-            # if turn:
-            #   Turn180()
+            turn = distance_sensor.check_distance()
+            if turn:
+              Turn180()
             pass
 
 main()
