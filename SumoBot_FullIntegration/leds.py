@@ -12,7 +12,7 @@ singles = NeoPixel(singles_pin, 4)
 
 
 ## NeoPixel uses a RGB tuple to define colors. We can predfinee colors; max values are 255, 
-#yet for this demonstration we are using a fraction of that
+# for this demonstration we are using a fraction of that
 # COLOR = (RED, GREEN, BLUE)
 RED = (10,0,0)   #JEWEL
 GREEN = (0,10,0)
@@ -40,11 +40,10 @@ red = (0,brightness,0)
 i = 0
 _mode = 0
 
-#TODO War Mode Setup
-#TODO War Mode Step Functions
 
+### Red Pattern ###
 _jewel_position = 1
-_singles_position = 1
+_singles_position = 0
 _singles_direction = True
 
 def RedPatternUpdateJewel():
@@ -64,40 +63,28 @@ def RedPatternUpdateSingles():
     else:
         _singles_position = _singles_position - 1
     singles[_singles_position] = red
-    if (_singles_position == len(singles)) or (_singles_position == 1):
+    # print(_singles_position)
+    if (_singles_position == len(singles)-1) or (_singles_position == 0):
         _singles_direction = not _singles_direction
     singles.write()
+
+def RedHeartBeatJewel():
+    if jewel[0] is not redJewel:
+        jewel[0] = redJewel
+    else:
+        jewel[0] = (0,0,0)
+    jewel.write()
 
 def RedPatternUpdate():
     RedPatternUpdateJewel()
     RedPatternUpdateSingles()
 
 def RedPatternSetup():
+    #RedPattern doesn't require setup
     pass
 
-# def RedpatternJ(neopixel: NeoPixel):
-#     for i in range(1, len(singles)):
-#         singles[i] = redJewel
-#         singles.write()
-#         sleep(.1)
-#         singles[i] = (0,0,0)
 
-
-# def RedpatternS(neopixel):
-#     for i in range(0, len(jewel)-1):
-#         jewel[i] = red
-#         jewel.write()
-#         sleep(.09)
-#         jewel[i] = (0,0,0)
-#     for i in range(len(jewel)-1,0,-1):
-#         jewel[i] = red
-#         jewel.write()
-#         sleep(.09)
-#         jewel[i] = (0,0,0)
-
-
-#TODO Party Mode Setup
-#TODO Part Mode Step Functions
+### RainbowPattern ###
 def RainbowPatternSetup(neopixel: NeoPixel, colorlist):
     j = 0
     for i in range(len(neopixel)):
@@ -114,7 +101,6 @@ def NextColor2(current_color2, color_list2):
         return color_list2[0]
     elif color_list2[i] == current_color2:
         return color_list2[i+1]
-  # return color_list[0]
 
 def RunPattern(neopixel: NeoPixel, colorlist):
     for i in range(len(neopixel)):
@@ -131,9 +117,6 @@ def RainbowUpdate():
 def RainbowSetup():
     RainbowPatternSetup(jewel,color_list)
     RainbowPatternSetup(singles,color_list2)
-
-#TODO Mode Select
-#TODO Update Function
 
 def mode(NewMode:int):
     #Check to see if Mode Changed
@@ -155,5 +138,7 @@ def update():
         RainbowUpdate()
     if _mode == 2:
         RedPatternUpdate()
-        pass
-    pass
+
+def heartbeat():
+    if _mode == 2:
+        RedHeartBeatJewel()

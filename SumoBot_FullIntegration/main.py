@@ -133,7 +133,7 @@ def callback_RX(data: int):
     for _ in command_codes: 
         if command_codes[_] == data:
             last_tx_received_time = time.ticks_ms()
-            led.toggle()
+            Indicate_Heartbeat()
             FuncToCall = command_codes[_].callback
             ArgToPass = command_codes[_].args
             if ArgToPass is None:
@@ -149,7 +149,7 @@ IR_Reciever = IR_RX(constants.PIN_RX, constants.ADDRESS, callback_RX)
 # Manual = allows for functions to be called from the REPL
 # Test = cycles through the command codes with a short delay
 
-MANUAL = True
+MANUAL = False
 TESTING = False
 
 def _testCallBack():
@@ -161,19 +161,23 @@ def _testCallBack():
 def main():
     print("Loading Main...")
     led.value(0) # Turn off led now that everything is loaded
+    NeoPixelMode(1)
     if MANUAL:
         led3.value(1)   
         print("Starting Manual Control")
         return
     elif TESTING:
         led4.value(1)
-        print("Starting Testing of commands")
-        _testCallBack()
+        NeoPixelMode(2)
+        # print("Starting Testing of commands")
+        # _testCallBack()
         print("Starting testing of automatic functions")
         while True:
-            time.sleep_ms(50)
-            if distance_sensor.check_distance():
-                print("Object in range, turn 180")
+            time.sleep_ms(1000)
+            # if distance_sensor.check_distance():
+            #     print("Object in range, turn 180")
+            leds.update()
+            
     else:
         led2.value(1)
         print("Starting...")
@@ -184,5 +188,9 @@ def main():
             DistanceCheck()
             #TODO call led update
             pass
+
+def Indicate_Heartbeat():
+    led.toggle()
+    leds.heartbeat()
 
 main()
