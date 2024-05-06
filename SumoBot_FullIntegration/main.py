@@ -59,7 +59,7 @@ def MotorCCW(speed:int):
 def MotorSTOP():
     motor_a.stop()
     motor_b.stop()
-    print(f"Motor_A: {motor_a} Motor_B: {motor_b}")
+    # print(f"Motor_A: {motor_a} Motor_B: {motor_b}")
 
 #TODO Call leds mode select function
 def NeoPixelMode(mode:int):
@@ -183,14 +183,13 @@ def main():
         print("Starting...")
         while True:
             led2.toggle()
-            time.sleep_ms(50)
+            time.sleep_ms(100)
             AutoStopCheck()
             DistanceCheck()
-            #TODO call led update
-            pass
+            leds.update()
 
 def Indicate_Heartbeat():
     led.toggle()
-    leds.heartbeat()
+    # leds.heartbeat()
 
 main()

@@ -36,18 +36,18 @@ def measure_distance():
 def check_distance():
     distance = measure_distance()
     if distance is None:
-        print("check sensor connections (no echo recieved)")
+        # print("check sensor connections (no echo recieved)")
         return False
     elif 0 < distance <= 20:
-        print("Measured Distance:", distance, "cm")
+        # print("Measured Distance:", distance, "cm")
         print("turn 180° !!")
         return True
     elif 21 <= distance <= 400:
-        print("Measured Distance:", distance, "cm")
-        print("do nothing")
+        # print("Measured Distance:", distance, "cm")
+        # print("do nothing")
         return False
     else:
-        print("out of range")
+        # print("out of range")
         return False
 
 

@@ -74,6 +74,7 @@ def RedHeartBeatJewel():
     else:
         jewel[0] = (0,0,0)
     jewel.write()
+    
 
 def RedPatternUpdate():
     RedPatternUpdateJewel()

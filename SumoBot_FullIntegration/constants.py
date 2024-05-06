@@ -12,8 +12,8 @@ PIN_MOTOR_A_THROTTLE = 13 #Labelled AIN2 on PCB. Enable on Documentaiton and DRV
 PIN_MOTOR_B_GEAR = 14 #Labelled BIN1 on PCB. Phase on Documentaiton and DRV
 PIN_MOTOR_B_THROTTLE = 15 #Labelled BIN2 on PCB. Enable on Documentaiton and DRV
 
-PIN_NEOPIXEL_Jewel = 6
-PIN_NEOPIXEL_Singles = 7
+PIN_NEOPIXEL_Jewel = 7
+PIN_NEOPIXEL_Singles = 6
 
 PIN_SENSOR_TRIGGER = 21
 PIN_SENSOR_RETURN = 20
