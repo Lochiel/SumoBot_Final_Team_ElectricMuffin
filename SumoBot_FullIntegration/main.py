@@ -26,6 +26,7 @@ led4.value(0)
 
 last_tx_received_time = time.ticks_ms
 AUTOSTOP_TIMEOUT = 250 #ms from last tx recieved to initiate autostop
+SENSOR_ENABLE = True
 
 # Setup Motor Instances
 motor_a = Motor(constants.PIN_MOTOR_A_THROTTLE, constants.PIN_MOTOR_A_GEAR, CWisFwd=False)
@@ -68,6 +69,8 @@ def NeoPixelMode(mode:int):
     pass
 
 def BackSensor_Toggle(): #Placeholder, actual function should be in DistanceSenor.py
+    global SENSOR_ENABLE
+    SENSOR_ENABLE = False
     print("DistanceSensor_Toggle called")
     pass
 
@@ -185,7 +188,8 @@ def main():
             led2.toggle()
             time.sleep_ms(100)
             AutoStopCheck()
-            DistanceCheck()
+            if SENSOR_ENABLE:
+                DistanceCheck()
             leds.update()
 
 def Indicate_Heartbeat():
